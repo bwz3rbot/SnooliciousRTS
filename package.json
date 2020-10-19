@@ -1,0 +1,30 @@
+{
+  "name": "snoolicious",
+  "version": "1.0.0",
+  "description": "Wrapper for Snoowrap",
+  "main": "src/app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node src/test/Snoo.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/web-temps/Snoolicious.git"
+  },
+  "keywords": [
+    "Snoowrap",
+    "API",
+    "wrapper",
+    "Reddit",
+    "Reddit-Bot",
+    "template"
+  ],
+  "author": "Jacob Carpenter https://github.com/web-temps/",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/web-temps/Snoolicious/issues"
+  },
+  "homepage": "https://github.com/web-temps/Snoolicious#readme"
+}

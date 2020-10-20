@@ -3,9 +3,9 @@ const dotenv = require('dotenv').config({
     path: "pw.env"
 });
 console.log("Requiring Reddit.");
-const Reddit = require('./lib/Reddit');
+const Snoolicious = require('./lib/Snoolicious');
 console.log("Creating new Reddit Class.");
-const reddit = new Reddit();
+const snoolicious = new Snoolicious();
 const Command = require('./util/Command');
 
 

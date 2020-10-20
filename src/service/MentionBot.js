@@ -1,18 +1,4 @@
 const Queue = require('../util/Queue');
-/* [Mention Bot Test] */
-async function mentionBotTest() {
-    console.log('RUNNING TEST'.rainbow);
-    console.log("Creating a new mention bot class instance.".magenta);
-    bot = new MentionBot();
-
-    console.log("awaiting bot.assignFirst()".magenta);
-    await bot.assignFirst();
-    setInterval(async () => {
-        await bot.checkAgain();
-
-    }, 10000);
-}
-
 /* 
     [Mention Bot Class]
         1. Gets inbox
@@ -25,9 +11,11 @@ async function mentionBotTest() {
 
 */
 module.exports = class MentionBot {
-    constructor(requester, limit) {
+    constructor(requester, startupLimit, mentionsLimit) {
         this.requester = requester;
-        this.limit = limit | 5;
+        this.startupLimit = startupLimit || 5;
+        this.mentionsLimit = mentionsLimit || 25;
+        console.log("Mentions limit set to: ", this.mentionsLimit);
         this.mentions = new Queue();
         this.cutoff = new Number();
     }
@@ -43,17 +31,12 @@ module.exports = class MentionBot {
         console.log("MentionBot Service assigning the first utc...".magenta);
         const inbox = await this.requester.getInbox({
             filter: 'mentions',
-            limit: this.limit
+            limit: parseInt(this.startupLimit)
         });
         let i = 0;
         // Reverse the array and enqueue the mentions
         inbox.slice().reverse().forEach(mention => {
-            console.log({
-                i: i++,
-                limit: this.limit
-            });
             this.mentions.enqueue(mention);
-
         });
         // Set the cutoff
         this.cutoff = this.mentions.collection[this.mentions.size() - 1].created_utc;
@@ -71,8 +54,9 @@ module.exports = class MentionBot {
         // Check inbox
         const inbox = await this.requester.getInbox({
             filter: 'mentions',
-            limit: 25
+            limit: parseInt(this.mentionsLimit)
         });
+        console.log("The size of this thing: ", inbox.length);
         // Filter items with created_utc > than the cutoff
         const newMentions = inbox.filter(mention => mention.created_utc > this.cutoff).slice();
         // Reverse the array and enqueue the new mentions

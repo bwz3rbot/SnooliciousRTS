@@ -1,18 +1,4 @@
 const Queue = require('../util/Queue');
-/* [Sub Monitor Test] */
-async function subMonitorTest() {
-    console.log('RUNNING TEST'.rainbow);
-    console.log("Creating a new sub monitor class instance.".magenta);
-    bot = new SubMonitor();
-
-    console.log("awaiting bot.assignFirst()".magenta);
-    await bot.assignFirst();
-    setInterval(async () => {
-        await bot.checkAgain();
-
-    }, 10000);
-}
-
 /* 
     [SubMonitor Class]
         1. Gets the subreddit/new
@@ -25,13 +11,14 @@ async function subMonitorTest() {
 
 */
 module.exports = class SubMonitor {
-    constructor(requester, sub, limit) {
+    constructor(requester, sub, startupLimit, submissionLimit) {
         this.requester = requester;
-        this.limit = limit | 5;
+        this.startupLimit = startupLimit || 5;
+        console.log("startup limit set to: ", this.startupLimit);
+        this.submissionLimit = submissionLimit || 25;
         this.submissions = new Queue();
         this.cutoff = new Number();
         this.sub = sub;
-
     }
     /* 
         [Assign First UTC]
@@ -42,7 +29,7 @@ module.exports = class SubMonitor {
     async assignFirst() {
         // Check inbox
         const listing = await this.requester.getSubreddit(this.sub).getNew({
-            limit: this.limit
+            limit: parseInt(this.startupLimit)
         })
         // Reverse the array and enqueue the mentions
         listing.slice().reverse().forEach(submission => {
@@ -53,7 +40,6 @@ module.exports = class SubMonitor {
         // Return the queue
         return this.submissions;
     }
-
     /* 
         [Check Again]
             - Checks the subreddit/new
@@ -63,7 +49,7 @@ module.exports = class SubMonitor {
     async checkAgain() {
         // Check inbox
         const inbox = await this.requester.getSubreddit(this.sub).getNew({
-            limit: 25
+            limit: parseInt(this.submissionLimit)
         });
         // Filter items with created_utc > than the cutoff
         const newSubmissions = inbox.filter(mention => mention.created_utc > this.cutoff).slice();

@@ -1,17 +1,4 @@
 const Queue = require('../util/Queue');
-/* [Thread Follower Test] */
-async function threadFollowerTest() {
-    console.log('RUNNING TEST'.rainbow);
-    console.log("Creating a new thread follower class instance.".magenta);
-    bot = new ThreadFollower();
-
-    console.log("awaiting bot.assignFirst()".magenta);
-    await bot.assignFirst();
-    setInterval(async () => {
-        await bot.checkAgain();
-    }, 10000);
-}
-
 /* 
     [Thread Follower Class]
         1. Gets the submission
@@ -25,13 +12,12 @@ async function threadFollowerTest() {
 
 */
 module.exports = class CommandBot {
-    constructor(requester, threadId, limit) {
+    constructor(requester, threadId, startupLimit) {
         this.requester = requester;
-        this.limit = limit | 5;
+        this.startupLimit = startupLimit | 5;
         this.commands = new Queue();
         this.cutoff = new Number();
         this.threadId = threadId;
-
     }
     /* 
         [Assign First UTC]
@@ -40,37 +26,24 @@ module.exports = class CommandBot {
             - Assigns this.cutoff to the most recent utc
         */
     async assignFirst() {
-        console.log("ThreadFollower Service assigning the first utc...".yellow);
         // Get the thread and set suggested sort to new
         const thread = await this.requester.getSubmission(this.threadId)
             .setSuggestedSort('new')
             .fetch();
-        console.log("got this many comments: ".america, thread.comments.length);
+        // If no comments exist, make the first comment to avoid errors.
         if (thread.comments.length === 0) {
             await this.requester.getSubmission(this.threadId).reply("____beep boop____.");
+            // Recurisvly run this function after the length of comments is no longer 0
             return this.assignFirst();
-
         }
         // Reverse the array and enqueue the mentions
-        console.log("enqueing commands while i < ", this.limit);
         let i = 0;
-        console.log("just before commands =");
-        const commands = thread.comments.slice(0, this.limit);
-
-        console.log("just after commands = and before commands.slice");
+        const commands = thread.comments.slice(0, this.startupLimit);
         commands.slice().reverse().forEach(command => {
-            if (i++ < this.limit) {
-                console.log({
-                    i,
-                    limit: this.limit
-                });
+            if (i++ < this.startupLimit) {
                 this.commands.enqueue(command);
             }
-
         });
-        console.log("finished enqueuing the first set of commands");
-        console.log("Size of the command queue: ", this.commands.size());
-        console.log("length of the queue: ", this.commands.collection.length);
         // Set the cutoff
         this.cutoff = this.commands.collection[this.commands.size() - 1].created_utc;
         // Return the queue
@@ -84,16 +57,12 @@ module.exports = class CommandBot {
             - Enqueues the new submissions
      */
     async checkAgain() {
-        console.log("Checking again!".magenta);
         // Check inbox
         const thread = await this.requester.getSubmission(process.env.THREAD_ID).fetch();
         // Filter items with created_utc > than the cutoff
-        console.log("checking that command.created_utc is > ".magenta, this.cutoff);
         const newCommands = thread.comments.filter(command => command.created_utc > this.cutoff).slice();
         // Reverse the array and enqueue the new mentions
-
         if (newCommands.length > 0) {
-            console.log("new commands present. enqueueing them.".green);
             newCommands.slice().reverse().forEach(command => {
                 this.commands.enqueue(command);
             });

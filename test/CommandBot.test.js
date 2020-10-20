@@ -2,7 +2,7 @@ const dotenv = require('dotenv').config({
     path: "pw.env"
 });
 const colors = require('colors');
-const Reddit = require('../src/lib/Reddit');
+const Reddit = require('../src/lib/Snoolicious');
 /* Get Commands Test */
 (async () => {
     console.log("Running command test".rainbow);

@@ -13,7 +13,7 @@
 
 ---
 
-<p align="center"> Snoolicious Reddit Tool Suite is a fully fledged bot framework complete with three different ways of getting commands to your bot, command validator, a wiki editor, <a href='https://github.com/web-temps/SnooMD'>SnooMD Reddit Flavour Markdown Editor</a>, and direct access to the incredible library <a href="https://github.com/not-an-aardvark/snoowrap">Snoowrap</a>.<br>
+<p align="center"> Snoolicious Reddit Tool Suite is a fully fledged bot framework complete with three different ways of getting commands to your bot, a command validator tool, a wiki editor, <a href='https://github.com/web-temps/SnooMD'>SnooMD Reddit Flavour Markdown Editor</a>, and direct access to the incredible library <a href="https://github.com/not-an-aardvark/snoowrap">Snoowrap</a>.<br>
 Snoolicious RTS has everything you need to get started building your bot to interact with the Reddit API.
     <br> 
 </p>
@@ -23,6 +23,7 @@ Snoolicious RTS has everything you need to get started building your bot to inte
 - [About](#about)
 - [Getting Started](#getting_started)
   - [Prerequisites](#prereq)
+  - [Setting Up Your Script App](#script_app)
 - [Deployment](#deployment)
 - [Usage](#usage)
 - [Built Using](#built_using)
@@ -33,7 +34,7 @@ Snoolicious RTS has everything you need to get started building your bot to inte
 
 # About <a name = "about"></a>
 
-Writing bots can be tough. Not to mention time consuming! This project simplifies the whole process. I've taken all the hard work out for you combined all the templates and utilities I've created into one big module. Just import Reddit and you will have access to my entire Tool Suite. This project will be updated from time to time when I create new utilities or learn new tricks that I would like to keep using in my future projects. Feel free to use it as you please, create a pull request to add your own utilities and share ideas. This is Github, after all. A place for developers to collaborate and make open source projects better for the rest of us!
+Writing bots can be tough. Not to mention time consuming! This project simplifies the whole process. I've taken all the hard work out for you combined all the templates and utilities I've created into one big module. Just import Reddit and you will have access to my entire __Reddit Tool Suite__. This project will be updated from time to time when I create new utilities or learn new tricks that I would like to keep using in my future projects. Feel free to use it as you please, create a pull request to add your own utilities and share ideas. This is Github, after all. A place for developers to collaborate and make open source projects better for the rest of us!
 
 
 # Getting Started <a name = "getting_started"></a>
@@ -42,17 +43,12 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Prerequisites <a name = "prereq"></a>
 
-This project is built with Node.JS. Just download the code in this repo and `npm i` the depencencies.
-
-
-
-## Installing
+This project is built with Node.JS. Download the latest version [here](https://nodejs.org/en/download/). Now download the code from this repo and use `npm i` to install the dependencies required to run your bot.
 
 
 ## Setting Up Your Script App <a name = "script_app"></a>
 
 You'll have to create a new account for your bot before you move any further.\
-And you'll have to grant the account permissions on your subreddit.\
 Once the account is created, log in, go to [reddit.com/prefs/apps](https://www.reddit.com/prefs/apps) to fill out the form to create a new script app.
 
 
@@ -60,9 +56,9 @@ Once the account is created, log in, go to [reddit.com/prefs/apps](https://www.r
 
 ## Environment Variables <a name = "env_var"></a>
 
-This project requires dotenv. dotenv is a package that allows a developer to store environment variables on the __process.env__ property. You create your .env file in the main folder and require the dependency upon running the app. All your javascript files will have access to these variables, no matter where they lie on the directory tree. It allows your bots to be written to be customizable for others to use, and also adds a layer of security by allowing you to store sensitive data (like passwords or client auth codes) outside of your source code.
-You must include a __pw.env__ file with these variables in your root folder for the bot to function. You may also add on your own variables here. You can call them from anywhere in your code by calling ```process.env.<variable name>```
-Now that you've set up your bot account, granted it permissions on your subreddit, and created a script app, it's time to download the source code and paste in your environment variables.
+This project requires __dotenv__. dotenv is a package that allows a developer to store environment variables on the __process.env__ property. You create your .env file in the main folder and require the dependency upon running the app. All your javascript files will have access to these variables, no matter where they lie on the directory tree. It allows your bots to be written to be customizable for others to use, and also adds a layer of security by allowing you to store sensitive data (like passwords or client auth codes) outside of your source code.
+You must include a __pw.env__ file with these variables in your root folder for the bot to function. You may also add on your own variables here. You can call them from anywhere in your code by calling ```process.env.<variable name>```. Read more about dotenv [here](https://www.npmjs.com/package/dotenv).\
+Now that you've set up your bot account and created a script app, it's time to download the source code and paste in your environment variables.
 
 Download the .zip file containing the source code on this page. Unzip it and save it to your computer somewhere. Now open up the pw.envEXAMPLE file.\
 Also have open reddit.com/prefs/apps as you'll need to copy/paste the items you'll find there.\
@@ -71,11 +67,12 @@ __CLIENT_ID__ and __CLIENT_SECRET__ are fround in prefs/apps.\
 __REDDIT_USER__ is your bots username.\
 __REDDIT_PASS__ is its password.\
 __MASTER_SUB__ is the subreddit it will work on.\
-__LIMIT__ will cause the bot to check this many items per sweep. It takes a bit longer to start up, but can accomodate for more requests the higher you set it with a maximum of 25. Setting this value higher will ensure that when stopping and restarting the bot, no requests are forgotten.\
 __DEBUG_CODE__ and __DEBUG_NETWORK__ should be set to false unless any problems arise.\
-__THREAD_ID__ You will have to go into your subreddit and create a new thread. I suggest pinning it so that users can see it and easily use it. Once it is created you'll have to copy and paste the id from the url bar into this field. The bot works by latching onto this thread and setting suggested sort to new, then continously streaming in the latest requests and handling them in a queue. This field is definately required before starting your bot. It may be changed at any time if you decide to start a new command thread.\
-__COMMAND_PREFIX__ A one character (preferably symbol) string that the bot will listen for commands with.\
-See the below example of a url. The id will be used in the pw.envEXAMPLE file as a reference. Copy the id from the thread you create just like this one:\
+__STARTUP_LIMIT__ will cause the bot to check this many items per sweep. It takes a bit longer to start up, but can accomodate for more requests the higher you set it. Setting this value higher will ensure that when stopping and restarting the bot, no requests are forgotten. This value may be set up to 100\
+__SUBMISSION_LIMIT__ Will cause the bot to check for more submissions each sweep after the first. On very active subs with many submissions per minute, this option may be set up to 100.
+__COMMAND_PREFIX__ A single character (preferably symbol) string that the bot will listen for commands with.\
+__THREAD_ID__ You will have to go into your subreddit and create a new thread. I suggest pinning it so that users can see it and easily use it. Once it is created you'll have to copy and paste the id from the url bar into this field. The __CommandBot Service__ works by latching onto this thread and setting suggested sort to new, then continously streaming in the latest requests and handling them in a queue. This function requires the bot to have permission set to `Posts` to not receive an error. The value may be changed at any time if you decide to start a new command thread.\
+See the below example of a url. The id will be used in the pw.envEXAMPLE file as a reference. Copy the id from the thread you create just like this one:
 
 ```
 https://www.reddit.com/r/Bwz3rBot/comments/ja6v32/bot_command_thread/
@@ -85,17 +82,19 @@ https://www.reddit.com/r/Bwz3rBot/comments/ja6v32/bot_command_thread/
 
 
 
-USER_AGENT=''
-CLIENT_ID=''
-CLIENT_SECRET=''
-REDDIT_USER=''
-REDDIT_PASS=''
-MASTER_SUB='Bwz3rBot'
-LIMIT='5'
-DEBUG_CODE='false'
-DEBUG_NETWORK='false'
-THREAD_ID='jej937'
-COMMAND_PREFIX="$"
+USER_AGENT=''\
+CLIENT_ID=''\
+CLIENT_SECRET=''\
+REDDIT_USER=''\
+REDDIT_PASS=''\
+MASTER_SUB='Bwz3rBot'\
+DEBUG_CODE='false'\
+DEBUG_NETWORK='false'\
+STARTUP_LIMIT='7'\
+SUBMISSION_LIMIT='25'\
+MENTIONS_LIMIT='25'\
+THREAD_ID='jejlbe'\
+COMMAND_PREFIX="!"\
     
 
 

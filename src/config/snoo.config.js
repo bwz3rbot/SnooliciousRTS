@@ -25,15 +25,12 @@ const config = {
     retryErrorCodes: [502, 503, 504, 522],
     debug: JSON.parse(process.env.DEBUG_NETWORK) || false
 }
-console.log("Got this config: ", config);
-
 /* 
     [SnooConfig]
         - Export Configured Snoowrap 
     */
 module.exports = class SnooConfig {
     constructor() {
-        console.log("Constructing a new SnooConfig class");
         this.requester = new Snoowrap(client);
         this.requester.config(config);
     }

@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node src/test/Snoo.test.js"
+    "test": "node test/WikiEditorBot.test.js"
   },
   "repository": {
     "type": "git",
@@ -26,5 +26,10 @@
   "bugs": {
     "url": "https://github.com/web-temps/Snoolicious/issues"
   },
-  "homepage": "https://github.com/web-temps/Snoolicious#readme"
+  "homepage": "https://github.com/web-temps/Snoolicious#readme",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "dotenv": "^8.2.0",
+    "snoowrap": "^1.21.0"
+  }
 }

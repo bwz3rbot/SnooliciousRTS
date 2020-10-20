@@ -24,7 +24,7 @@ async function threadFollowerTest() {
     against the value of cutoff will determine if the item is to be filtered
 
 */
-module.exports = class ThreadFollower {
+module.exports = class CommandBot {
     constructor(requester, threadId, limit) {
         this.requester = requester;
         this.limit = limit | 5;
@@ -45,10 +45,19 @@ module.exports = class ThreadFollower {
         const thread = await this.requester.getSubmission(this.threadId)
             .setSuggestedSort('new')
             .fetch();
+        console.log("got this many comments: ".america, thread.comments.length);
+        if (thread.comments.length === 0) {
+            await this.requester.getSubmission(this.threadId).reply("____beep boop____.");
+            return this.assignFirst();
+
+        }
         // Reverse the array and enqueue the mentions
         console.log("enqueing commands while i < ", this.limit);
         let i = 0;
+        console.log("just before commands =");
         const commands = thread.comments.slice(0, this.limit);
+
+        console.log("just after commands = and before commands.slice");
         commands.slice().reverse().forEach(command => {
             if (i++ < this.limit) {
                 console.log({

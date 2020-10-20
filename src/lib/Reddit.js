@@ -1,8 +1,9 @@
-let Snoowrap = require('../config/snoo.config');
+const Snoowrap = require('../config/snoo.config');
 const MentionBot = require('../service/MentionBot');
 const SubMonitorBot = require('../service/SubMonitorBot');
-const ThreadFollowerBot = require('../service/ThreadFollowerBot');
+const CommandBot = require('../service/CommandBot');
 const WikiEditorBot = require('../service/WikiEditorBot');
+const PriorityQueue = require('../util/PriorityQueue');
 /*
     [Reddit Wrapper]
 
@@ -23,14 +24,13 @@ const WikiEditorBot = require('../service/WikiEditorBot');
             
 */
 module.exports = class Reddit {
-    constructor(S) {
+    constructor() {
         /* Snoowrap API */
-
-        S ? this.requester = S : this.requester = new Snoowrap().getRequester();
+        this.requester = this.requester = new Snoowrap().getRequester();
         /* Wrappers */
         this.mentions = new MentionBot(this.requester, process.env.LIMIT);
         this.submissions = new SubMonitorBot(this.requester, process.env.MASTER_SUB, process.env.LIMIT);
-        this.commands = new ThreadFollowerBot(this.requester, process.env.THREAD_ID, process.env.LIMIT);
+        this.commands = new CommandBot(this.requester, process.env.THREAD_ID, process.env.LIMIT);
         this.wikieditor = new WikiEditorBot(this.requester, process.env.MASTER_SUB, process.env.LIMIT);
 
 
@@ -38,6 +38,9 @@ module.exports = class Reddit {
         this.mentionsAssigned = false;
         this.submissionsAssigned = false;
         this.commandsAssigned = false;
+
+        /* All Tasks */
+        this.tasks = new PriorityQueue();
     }
 
     /*
@@ -46,7 +49,7 @@ module.exports = class Reddit {
             - The first time calling getMentions, will run assignFirst
             - Returns the mention queue
     */
-    async getMentions() {
+    async getMentions(priority) {
         let mentions;
         if (!this.mentionsAssigned) {
             mentions = await this.mentions.assignFirst();
@@ -54,7 +57,12 @@ module.exports = class Reddit {
         } else {
             mentions = await this.mentions.checkAgain();
         }
-        return this.mentions.mentions;
+        // Dequeue all the mentions into the priority queue
+        while (mentions && !mentions.isEmpty()) {
+            console.log("command queue size: ", mentions.size());
+            this.tasks.enqueue([mentions.dequeue(), priority]);
+        }
+        return this.tasks;
     }
     /*
         [Get Submissions]
@@ -62,7 +70,7 @@ module.exports = class Reddit {
             - The first time calling getSubmissions, will run assignFirst
             - Returns the submission queue
     */
-    async getSubmissions() {
+    async getSubmissions(priority) {
         let submissions;
         if (!this.submissionsAssigned) {
             submissions = await this.submissions.assignFirst();
@@ -70,7 +78,12 @@ module.exports = class Reddit {
         } else {
             submissions = await this.submissions.checkAgain();
         }
-        return this.submissions.submissions;
+        // Dequeue all the submissions into the priority queue
+        while (submissions && !submissions.isEmpty()) {
+            console.log("command queue size: ", submissions.size());
+            this.tasks.enqueue([submissions.dequeue(), priority]);
+        }
+        return this.tasks;
     }
     /*
         [Get Commands]
@@ -78,7 +91,8 @@ module.exports = class Reddit {
             - The first time calling getCommands, will run assignFirst
             - Returns the command queue
     */
-    async getCommands() {
+    async getCommands(priority) {
+        console.log("RedditLib getting Commands with priority: ", priority);
         let commands;
         if (!this.commandsAssigned) {
             commands = await this.commands.assignFirst();
@@ -86,8 +100,13 @@ module.exports = class Reddit {
         } else {
             commands = await this.commands.checkAgain();
         }
-        // this.commands.commands.enqueue(commands);
-        return this.commands.commands;
+        // console.log(`commands size before dequeueing: ${commands.size()}`);
+        // Dequeue all the submissions into the priority queue
+        while (commands && !commands.isEmpty()) {
+            console.log("command queue size: ", commands.size());
+            this.tasks.enqueue([commands.dequeue(), priority]);
+        }
+        return this.tasks;
     }
     getWikiEditor() {
         return this.wikieditor;

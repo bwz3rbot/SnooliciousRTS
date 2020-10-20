@@ -1,14 +1,19 @@
-function testPrioQueue() {
-    const pq = new PriorityQueue();
-    pq.enqueue(['Beau Carnes', 2]);
-    pq.enqueue(['Quincy Larson', 3]);
-    pq.enqueue(['Ewa Mitulska-Wójcik', 1])
-    pq.enqueue(['Briana Swift', 2])
-    pq.printCollection();
-    pq.dequeue();
-    console.log(pq.front());
-    pq.printCollection();
-}
+// function testPrioQueue() {
+//     const pq = new PriorityQueue();
+//     pq.enqueue(['Beau Carnes', 2]);
+//     pq.enqueue(['Quincy Larson', 3]);
+//     pq.enqueue(['Ewa Mitulska-Wójcik', 1]);
+//     pq.enqueue(['Briana Swift', 2]);
+//     // console.log("Printing collection...");
+//     // pq.printCollection();
+//     console.log("dequeueing...");
+//     console.log(pq.dequeue());
+//     console.log(pq.dequeue());
+//     console.log(pq.dequeue());
+
+//     // console.log(pq.front());
+//     // pq.printCollection();
+// }
 /* Priority Queue */
 module.exports = class PriorityQueue {
     constructor() {
@@ -22,8 +27,8 @@ module.exports = class PriorityQueue {
         if (this.isEmpty()) {
             this.collection.push(element);
         } else {
-            const added = false;
-            for (let i = 0; i < collection.length; i++) {
+            let added = false;
+            for (let i = 0; i < this.collection.length; i++) {
                 if (element[1] < this.collection[i][1]) { //checking priorities
                     this.collection.splice(i, 0, element);
                     added = true;
@@ -37,7 +42,10 @@ module.exports = class PriorityQueue {
     };
     dequeue() {
         const value = this.collection.shift();
-        return value[0];
+        return {
+            item: value[0],
+            priority: value[1]
+        };
     };
     front() {
         return this.collection[0];

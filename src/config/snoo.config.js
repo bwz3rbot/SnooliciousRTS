@@ -23,8 +23,9 @@ const config = {
     warnings: true,
     continueAfterRatelimitError: false,
     retryErrorCodes: [502, 503, 504, 522],
-    debug: JSON.parse(process.env.DEBUG_NETWORK) | false
+    debug: JSON.parse(process.env.DEBUG_NETWORK) || false
 }
+console.log("Got this config: ", config);
 
 /* 
     [SnooConfig]

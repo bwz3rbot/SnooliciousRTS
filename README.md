@@ -127,13 +127,13 @@ const snoolicious = new Snoolicious();
 
 /* 
     [Handle Command]
-        - Passed in as the first argument to queryTasks()
-        - Will be awaited for each item dequeued from the tasks queue which contains a value of 'body'
-        - This will be true when calling both getCommands() and getMentions()
-        - Reddit Submission objects do not contain a body key, so they will be sent to the handle submissions function instead
+        - This function must be passed in as the first argument to snoolicious.queryTasks()
+        - handleCommand be awaited by Snoolicious for each command dequeued from the task queue
+        - This will be true when calling either the getCommands or getMentions functions, as they both return built commands
+        - Reddit Submission objects do not contain a body key, rather they will be sent to the handleSubmissions function instead
 
         [Command Task Object]
-            - The Command Task object will be passed with these key/value pairs:
+            - The Command Task object will be passed to this function with these key/value pairs:
                 task: {
                     command: { 
                         directive,
@@ -143,26 +143,30 @@ const snoolicious = new Snoolicious();
                         <Reddit Comment Object>
                     },
                     priority: <Number you set when calling getCommands or getMentions>,
-                    time: <new Date>
+                    time: <new Date().getTime()>
                 }
 */
 async function handleCommand(task) {
-    switch (task.command.directive) {
-        case 'help':
-            console.log("command received was help. command: ".yellow, task.command);
-            console.log("The priority level: ".yellow, task.priority);
-            console.log("Received at this time: ".yellow, task.time);
-            // await snoolicious.getRequester().getComment(task.item.id).reply("replying to the item!");
-            break;
-        default:
-            console.log("Command was not understood! the command: ", task.command);
-            console.log("The priority level: ", task.priority);
+    // Check if the item was saved first.
+    if (!task.item.saved) {
+        console.log("New Command recieved: ".yellow, task.time);
+        console.log(task.command);
+        switch (task.command.directive) {
+            case 'help':
+                console.log("Command was help!".green, task.command);
+                await snoolicious.getRequester().getComment(task.item.id).reply("replying to the item!");
+                break;
+            default:
+                console.log("Command was not understood! the command: ".red, task.command);
+        }
+        // Save the item so snoolicious won't process it again.
+        // await snoolicious.getRequester().getComment(task.item.id).save();
     }
 }
 /*
-    [Handle Command]
+    [Handle Submission]
         - Passed in as the second argument to queryTasks()
-        - Awaited for each submission dequeued from the task queue
+        - Awaited by Snoolicious for each submission dequeued from the task queue
 
         [Submission Task Object]
             - The Submission Task object will be passed with these key/value pairs:
@@ -171,18 +175,34 @@ async function handleCommand(task) {
                         <Reddit Submission Object>
                     },
                     priority: <Number you set when calling getCommands or getMentions>,
-                    time: <new Date>
+                    time: <new Date().getTime()>
                 }
 */
 async function handleSubmission(task) {
-    console.log("Bot Handling Task:".yellow, task.item.title);
-    console.log("With priority level: ".yellow, task.priority);
-    console.log("Got at this time: ".yellow, task.time);
+    console.log({
+        title: task.item.title,
+        selftext: task.item.selftext,
+        UTC: task.item.created_utc
+    });
+    switch (task.item.subreddit.display_name) {
+        case 'Bwz3rBot':
+            console.log("Came from r/Bwz3rBot.".green);
 
+            break;
+        case 'IntWatch':
+            console.log("Came from r/IntWatch".red);
+            break;
+        case 'AnotherBotFarm':
+            console.log("Came from r/AnotherBotFarm");
+            break;
+        default:
+            console.log("Came from another sub!".yellow);
+            break;
+    }
 }
 
-/* [Snoolicious Example] */
-const INTERVAL = ((60 * 1000) * process.env.INTERVAL);
+/* [Snoolicious Run Cycle] */
+const INTERVAL = (process.env.INTERVAL * 1000);
 async function run() {
         console.log("Running Test!!!".green);
         await snoolicious.getCommands(1);
@@ -191,10 +211,10 @@ async function run() {
         await snoolicious.getMultis(4);
         console.log("Size of the queue: ", snoolicious.tasks.size());
         await snoolicious.queryTasks(handleCommand, handleSubmission);
-        console.log("Finished Quereying Tasks. Sleeping....".rainbow);
+        console.log(`Finished Quereying Tasks. Sleeping for ${INTERVAL/1000} seconds...`.rainbow);
         setTimeout(() => {
             return run()
-        }, (1000 * 25));
+        }, (INTERVAL));
     }
     (async () => {
         await run();

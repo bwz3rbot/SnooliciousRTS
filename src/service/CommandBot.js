@@ -60,6 +60,7 @@ module.exports = class CommandBot {
             }
         });
         // Set the cutoff
+        console.log("Setting this.cutoff to be : ", this.commands.collection[this.commands.size() - 1].created_utc);
         this.cutoff = this.commands.collection[this.commands.size() - 1].created_utc;
         // Return the queue
         return this.commands;
@@ -72,9 +73,10 @@ module.exports = class CommandBot {
             - Enqueues the new submissions
      */
     async checkAgain() {
-        // Check inbox
+        // Check the thread
         const thread = await this.requester.getSubmission(process.env.THREAD_ID)
             .fetch();
+
         // Filter items with created_utc > than the cutoff
         const newCommands = thread.comments.filter(command => command.created_utc > this.cutoff).slice();
         // Reverse the array and enqueue the new mentions

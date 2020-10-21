@@ -8,13 +8,13 @@ const snoolicious = new Snoolicious();
 
 /* 
     [Handle Command]
-        - Passed in as the first argument to queryTasks()
-        - Will be awaited for each item dequeued from the tasks queue which contains a value of 'body'
-        - This will be true when calling both getCommands() and getMentions()
-        - Reddit Submission objects do not contain a body key, so they will be sent to the handle submissions function instead
+        - This function must be passed in as the first argument to snoolicious.queryTasks()
+        - handleCommand be awaited by Snoolicious for each command dequeued from the task queue
+        - This will be true when calling either the getCommands or getMentions functions, as they both return built commands
+        - Reddit Submission objects do not contain a body key, rather they will be sent to the handleSubmissions function instead
 
         [Command Task Object]
-            - The Command Task object will be passed with these key/value pairs:
+            - The Command Task object will be passed to this function with these key/value pairs:
                 task: {
                     command: { 
                         directive,
@@ -24,7 +24,7 @@ const snoolicious = new Snoolicious();
                         <Reddit Comment Object>
                     },
                     priority: <Number you set when calling getCommands or getMentions>,
-                    time: <new Date>
+                    time: <new Date().getTime()>
                 }
 */
 async function handleCommand(task) {
@@ -43,7 +43,7 @@ async function handleCommand(task) {
 /*
     [Handle Command]
         - Passed in as the second argument to queryTasks()
-        - Awaited for each submission dequeued from the task queue
+        - Awaited by Snoolicious for each submission dequeued from the task queue
 
         [Submission Task Object]
             - The Submission Task object will be passed with these key/value pairs:
@@ -52,7 +52,7 @@ async function handleCommand(task) {
                         <Reddit Submission Object>
                     },
                     priority: <Number you set when calling getCommands or getMentions>,
-                    time: <new Date>
+                    time: <new Date().getTime()>
                 }
 */
 async function handleSubmission(task) {
@@ -62,22 +62,21 @@ async function handleSubmission(task) {
 
 }
 
-
-/* Run Test */
-(async () => {
-    console.log("Running Test!!!".green);
-    // await snoolicious.getCommands();
-    // await snoolicious.getMentions();
-    await snoolicious.getMultis();
-    // await snoolicious.queryTasks(handleCommand, handleSubmission);
-    console.log("Sleeping....".rainbow);
-    setInterval(async () => {
-        console.log("getting more mentions...".magenta);
-        // await snoolicious.getCommands();
-        // await snoolicious.getMentions();
-        await snoolicious.getMultis();
+/* [Snoolicious Example] */
+const INTERVAL = ((60 * 1000) * process.env.INTERVAL);
+async function run() {
+        console.log("Running Test!!!".green);
+        await snoolicious.getCommands(1);
+        await snoolicious.getMentions(2);
+        await snoolicious.getSubmissions(3);
+        await snoolicious.getMultis(4);
+        console.log("Size of the queue: ", snoolicious.tasks.size());
         await snoolicious.queryTasks(handleCommand, handleSubmission);
-    }, 10000);
-
-
-})();
+        console.log("Finished Quereying Tasks. Sleeping....".rainbow);
+        setTimeout(() => {
+            return run()
+        }, (1000 * 25));
+    }
+    (async () => {
+        await run();
+    })();

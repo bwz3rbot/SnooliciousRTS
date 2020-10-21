@@ -15,8 +15,8 @@ module.exports = class SubMonitor {
     constructor(requester) {
         this.sub = process.env.MASTER_SUB;
         this.requester = requester;
-        this.startupLimit = process.env.STARTUP_LIMIT || 5;
-        this.submissionLimit = process.env.SUBMISSION_LIMIT || 25;
+        this.startupLimit = process.env.STARTUP_LIMIT;
+        this.submissionLimit = process.env.SUBMISSION_LIMIT;
         this.submissions = new Queue();
         this.cutoff = new Number();
 
@@ -28,26 +28,15 @@ module.exports = class SubMonitor {
         - Then assigns first, or checks again
     */
     async getSubmissions() {
-
-        console.log("SubMonitorBot -- getting submissions".magenta);
-
         if (firstUTCAssigned === false) {
-            console.log('assigned was false!'.red);
-            console.log(`SubMonitorBot -- Assigning hte first utc!`.green);
+            console.log(`SubMonitorBot -- Assigning the FIRST utc!`.green);
             firstUTCAssigned = true;
             await this.assignFirst();
-
         } else {
-            console.log("Value of assigned:", firstUTCAssigned);
-            console.log(`SubMonitorBot -- Assigning the NEXT utc for sub ${this.sub}`.yellow);
+            console.log(`SubMonitorBot -- Assigning the NEXT utc!`.yellow);
             await this.checkAgain();
         }
-
-
-
-
-
-
+        return this.submissions;
     }
     /* 
         [Assign First UTC]
@@ -56,11 +45,10 @@ module.exports = class SubMonitor {
             - Assigns this.cutoff to the most recent utc
         */
     async assignFirst() {
-        console.log("asigning first for this.sub: ", this.sub, "and this.startupLimit: ", this.startupLimit);
         // Check inbox
         const listing = await this.requester.getSubreddit(this.sub).getNew({
             limit: parseInt(this.startupLimit)
-        })
+        });
         // Reverse the array and enqueue the mentions
         listing.slice().reverse().forEach(submission => {
             this.submissions.enqueue(submission);
@@ -75,14 +63,15 @@ module.exports = class SubMonitor {
             - Checks the subreddit/new
             - Filters out the old submissions
             - Enqueues the new submissions
+            - Returns the submission queue
      */
     async checkAgain() {
         // Check inbox
-        const inbox = await this.requester.getSubreddit(this.sub).getNew({
+        const listing = await this.requester.getSubreddit(this.sub).getNew({
             limit: parseInt(this.submissionLimit)
         });
         // Filter items with created_utc > than the cutoff
-        const newSubmissions = inbox.filter(mention => mention.created_utc > this.cutoff).slice();
+        const newSubmissions = listing.filter(mention => mention.created_utc > this.cutoff).slice();
         // Reverse the array and enqueue the new mentions
         if (newSubmissions.length > 0) {
             newSubmissions.slice().reverse().forEach(mention => {

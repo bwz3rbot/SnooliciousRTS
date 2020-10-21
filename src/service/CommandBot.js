@@ -26,11 +26,11 @@ module.exports = class CommandBot {
     */
     async getCommands() {
         if (!firstUTCAssigned) {
-            console.log("CommandBot -- Assigning hte first utc...".green);
+            console.log("CommandBot -- Assigning the FIRST utc...".green);
             firstUTCAssigned = true;
             return this.assignFirst();
         } else {
-            console.log("CommandBot -- the NEXT utc...".yellow);
+            console.log("CommandBot -- Assigning the NEXT utc...".yellow);
             return this.checkAgain();
         }
     }
@@ -73,7 +73,8 @@ module.exports = class CommandBot {
      */
     async checkAgain() {
         // Check inbox
-        const thread = await this.requester.getSubmission(process.env.THREAD_ID).fetch();
+        const thread = await this.requester.getSubmission(process.env.THREAD_ID)
+            .fetch();
         // Filter items with created_utc > than the cutoff
         const newCommands = thread.comments.filter(command => command.created_utc > this.cutoff).slice();
         // Reverse the array and enqueue the new mentions

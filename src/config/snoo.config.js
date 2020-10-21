@@ -19,7 +19,7 @@ const client = {
 
     */
 const config = {
-    requestDelay: 2000,
+    requestDelay: 5000,
     warnings: true,
     continueAfterRatelimitError: false,
     retryErrorCodes: [502, 503, 504, 522],

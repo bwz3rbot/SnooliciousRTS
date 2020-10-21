@@ -30,7 +30,7 @@ const Command = require('../util/Command');
 module.exports = class Reddit {
     constructor() {
         /* [Snoowrap API] */
-        this.requester = this.requester = new Snoowrap().getRequester();
+        this.requester = new Snoowrap().requester;
 
         /* [Services] */
 
@@ -38,7 +38,7 @@ module.exports = class Reddit {
         this.mentions = new MentionBot(this.requester, process.env.STARTUP_LIMIT, process.env.MENTIONS_LIMIT);
         /* [SubMonitorBot Service] */
         this.submissions = new SubMonitorBot(this.requester);
-        /* [SubMonitorBot Service] */
+        /* [MultiSubMonitor Service] */
         this.multis = new MultiSubMonitorBot(this.requester);
         /* [CommandBot Service] */
         this.commands = new CommandBot(this.requester, process.env.THREAD_ID, process.env.STARTUP_LIMIT);
@@ -70,12 +70,12 @@ module.exports = class Reddit {
     /*
         [Get Submissions]
             - Asks SubMonitor Service to get submissions
-            - The first time calling getSubmissions, will run assignFirst
             - Dequeues the submissions queue into tasks queue
             - Returns the tasks queue
     */
     async getSubmissions(priority) {
         const submissions = await this.submissions.getSubmissions();
+
         // Dequeue all the submissions into the priority queue
         while (submissions && !submissions.isEmpty()) {
             this.tasks.enqueue([submissions.dequeue(), priority]);
@@ -92,7 +92,7 @@ module.exports = class Reddit {
         const multis = await this.multis.getSubmissions();
         // Dequeue all the submissions into the priority queue
         while (multis && !multis.isEmpty()) {
-            this.tasks.enqueue([submissions.dequeue(), priority]);
+            this.tasks.enqueue([multis.dequeue(), priority]);
         }
         return this.tasks;
     }
@@ -123,26 +123,72 @@ module.exports = class Reddit {
      */
 
     async queryTasks(handleCommand, handleSubmission) {
+        const D = new Date().getTime();
+
+        const promises = [];
         while (!this.tasks.isEmpty()) {
+
             const task = this.tasks.dequeue();
             // If not a submission
             if (task.item.body) {
                 const command = new Command().test(task.item.body);
-                if (command) { // If the item received was a command, return the command, the item, and 
-                    let cmd = {
+                if (command) { // If the item received was a command, return the command, the item, and priority
+                    const T = {
                         command: command,
                         item: task.item,
                         priority: task.priority,
-                        time: new Date().getTime()
+                        time: D
                     }
-                    await handleCommand(cmd);
+                    console.log("Calling back with handleCommand(task)".bgMagenta.white);
+
+                    promises.push(handleCommand(T));
+
                 }
-            } else if (task.item.title) {
-                task.time = new Date().getTime();
-                await handleSubmission(task);
+            } else if (task.item.title) { // Task was a submission
+                console.log("Calling back with handleSubmission".bgMagenta.black);
+                const T = {
+                    item: task.item,
+                    priority: task.priority,
+                    time: D
+                }
+                promises.push(handleSubmission(T));
+
             }
 
         }
+        await Promise.all(promises);
+
+        console.log("Resolved all promises".green);
+
+
+        // while (!this.tasks.isEmpty()) {
+        //     const task = this.tasks.dequeue();
+        //     // If not a submission
+        //     if (task.item.body) {
+        //         const command = new Command().test(task.item.body);
+        //         if (command) { // If the item received was a command, return the command, the item, and priority
+
+        //             const T = {
+        //                 command: command,
+        //                 item: task.item,
+        //                 priority: task.priority,
+        //                 time: D
+        //             }
+        //             console.log("Calling back with handleCommand(task)".bgMagenta.white);
+        //             await handleCommand(T);
+        //         }
+        //     } else if (task.item.title) { // Task was a submission
+
+        //         console.log("Calling back with handleSubmission".bgMagenta.black);
+        //         const T = {
+        //             item: task.item,
+        //             priority: task.priority,
+        //             time: D
+        //         }
+        //         await handleSubmission(T);
+        //     }
+
+        // }
     }
     /* [Wiki Editor] */
     getWikiEditor() {

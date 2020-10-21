@@ -19,19 +19,19 @@ module.exports = class MentionBot {
         this.mentions = new Queue();
         this.cutoff = new Number();
     }
-        /*
+    /*
         [Get Commands]
     */
-   async getMentions() {
-    if (!firstUTCAssigned) {
-        console.log("MentionBot --Assigning hte first utc...".green);
-        firstUTCAssigned = true;
-        return this.assignFirst();
-    } else {
-        console.log("MentionBot -- Assigning the NEXT utc...".yellow);
-        return this.checkAgain();
+    async getMentions() {
+        if (!firstUTCAssigned) {
+            console.log("MentionBot --Assigning hte FIRST utc...".green);
+            firstUTCAssigned = true;
+            return this.assignFirst();
+        } else {
+            console.log("MentionBot -- Assigning the NEXT utc...".yellow);
+            return this.checkAgain();
+        }
     }
-}
     /* 
         [Assign First UTC]
             - Checks the inbox

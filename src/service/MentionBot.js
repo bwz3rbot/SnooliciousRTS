@@ -10,15 +10,28 @@ const Queue = require('../util/Queue');
     against the value of cutoff will determine if the item is to be filtered
 
 */
+let firstUTCAssigned = false;
 module.exports = class MentionBot {
     constructor(requester, startupLimit, mentionsLimit) {
         this.requester = requester;
         this.startupLimit = startupLimit || 5;
         this.mentionsLimit = mentionsLimit || 25;
-        console.log("Mentions limit set to: ", this.mentionsLimit);
         this.mentions = new Queue();
         this.cutoff = new Number();
     }
+        /*
+        [Get Commands]
+    */
+   async getMentions() {
+    if (!firstUTCAssigned) {
+        console.log("MentionBot --Assigning hte first utc...".green);
+        firstUTCAssigned = true;
+        return this.assignFirst();
+    } else {
+        console.log("MentionBot -- Assigning the NEXT utc...".yellow);
+        return this.checkAgain();
+    }
+}
     /* 
         [Assign First UTC]
             - Checks the inbox
@@ -28,12 +41,10 @@ module.exports = class MentionBot {
         */
     async assignFirst() {
         // Check inbox
-        console.log("MentionBot Service assigning the first utc...".magenta);
         const inbox = await this.requester.getInbox({
             filter: 'mentions',
             limit: parseInt(this.startupLimit)
         });
-        let i = 0;
         // Reverse the array and enqueue the mentions
         inbox.slice().reverse().forEach(mention => {
             this.mentions.enqueue(mention);
@@ -56,7 +67,6 @@ module.exports = class MentionBot {
             filter: 'mentions',
             limit: parseInt(this.mentionsLimit)
         });
-        console.log("The size of this thing: ", inbox.length);
         // Filter items with created_utc > than the cutoff
         const newMentions = inbox.filter(mention => mention.created_utc > this.cutoff).slice();
         // Reverse the array and enqueue the new mentions

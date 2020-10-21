@@ -20,21 +20,17 @@ Snoolicious RTS has everything you need to get started building your bot to inte
 
 ## 📝 Table of Contents
 
-- [About](#about)
-- [Getting Started](#getting_started)
-  - [Prerequisites](#prereq)
-  - [Setting Up Your Script App](#script_app)
-- [Deployment](#deployment)
-- [Usage](#usage)
-- [Built Using](#built_using)
-- [TODO](../TODO.md)
-- [Contributing](../CONTRIBUTING.md)
-- [Authors](#authors)
-- [Acknowledgments](#acknowledgement)
+- [About <a name = "about"></a>](#about-)
+- [Getting Started <a name = "getting_started"></a>](#getting-started-)
+  - [Prerequisites <a name = "prereq"></a>](#prerequisites-)
+  - [Setting Up Your Script App <a name = "script_app"></a>](#setting-up-your-script-app-)
+  - [## Environment Variables <a name = "env_var"></a>](#h2-idenvironment-variables--66environment-variables-h2)
+- [Usage <a name="usage"></a>](#usage-)
+
 
 # About <a name = "about"></a>
 
-Writing bots can be tough. Not to mention time consuming! This project simplifies the whole process. I've taken all the hard work out for you combined all the templates and utilities I've created into one big module. Just import Reddit and you will have access to my entire __Reddit Tool Suite__. This project will be updated from time to time when I create new utilities or learn new tricks that I would like to keep using in my future projects. Feel free to use it as you please, create a pull request to add your own utilities and share ideas. This is Github, after all. A place for developers to collaborate and make open source projects better for the rest of us!
+Writing bots can be tricky. Not to mention time consuming! This project aims to simplify the entire process. I've taken the hard work out for you combined all the templates and utilities I've created into one big module. Just import Snoolicious and you will have access to my entire __Reddit Tool Suite__. This project will be updated from time to time when I create new utilities or learn new tricks that I would like to keep using in my future projects. Feel free to use it as you please, create a pull request to add your own utilities and share ideas. This is Github, after all. A place for developers to collaborate and make open source projects better for the people who use them!
 
 
 # Getting Started <a name = "getting_started"></a>
@@ -55,9 +51,15 @@ Once the account is created, log in, go to [reddit.com/prefs/apps](https://www.r
 <img src='https://i.imgur.com/yq8akJ7.png'>
 
 ## Environment Variables <a name = "env_var"></a>
+-----
 
-This project requires __dotenv__. dotenv is a package that allows a developer to store environment variables on the __process.env__ property. You create your .env file in the main folder and require the dependency upon running the app. All your javascript files will have access to these variables, no matter where they lie on the directory tree. It allows your bots to be written to be customizable for others to use, and also adds a layer of security by allowing you to store sensitive data (like passwords or client auth codes) outside of your source code.
-You must include a __pw.env__ file with these variables in your root folder for the bot to function. You may also add on your own variables here. You can call them from anywhere in your code by calling ```process.env.<variable name>```. Read more about dotenv [here](https://www.npmjs.com/package/dotenv).\
+
+
+This project requires __dotenv__. dotenv is a package that allows a developer to store environment variables on the __process.env__ property. You create your .env file in the root folder of your project require the dependency and point it to your file upon running the app. dotenv will attach these variables to the process.env property. Now all of your javascript files will have access to these variables, no matter where they lie on the directory tree. This allows your bots to be written to be customizable for others to use, and also adds a layer of security by allowing you to store sensitive data (like passwords or client auth codes) outside of your source code. You should never include these types of information in your code, as you will likely be uploading them to Github. You should always always *always* put sensitive data into your .env files and then promptly add them to the .gitignore. You'll thank me later!\
+<br>
+You must include a .env with these variables in your root folder for the bot to function. You may also add on your own variables here. You can call them from anywhere in your code by calling ```process.env.<variable name>```. Read more about dotenv [here](https://www.npmjs.com/package/dotenv).\
+<br>
+___
 Now that you've set up your bot account and created a script app, it's time to download the source code and paste in your environment variables.
 
 Download the .zip file containing the source code on this page. Unzip it and save it to your computer somewhere. Now open up the pw.envEXAMPLE file.\
@@ -94,58 +96,13 @@ STARTUP_LIMIT='7'\
 SUBMISSION_LIMIT='25'\
 MENTIONS_LIMIT='25'\
 THREAD_ID='jejlbe'\
-COMMAND_PREFIX="!"\
+COMMAND_PREFIX="!"
     
 
 
 Once these fields are completely filled out, remove <i>EXAMPLE</i> from the end of the filename.
 
+
 > pw.envEXAMPLE = pw.env
-
-
-## 🔧 Running the tests <a name = "tests"></a>
-
-Explain how to run the automated tests for this system.
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## 🎈 Usage <a name="usage"></a>
-
-Add notes about how to use the system.
-
-## 🚀 Deployment <a name = "deployment"></a>
-
-Add additional notes about how to deploy this on a live system.
-
-## ⛏️ Built Using <a name = "built_using"></a>
-
-- [MongoDB](https://www.mongodb.com/) - Database
-- [Express](https://expressjs.com/) - Server Framework
-- [VueJs](https://vuejs.org/) - Web Framework
-- [NodeJs](https://nodejs.org/en/) - Server Environment
-
-## ✍️ Authors <a name = "authors"></a>
-
-- [@kylelobo](https://github.com/kylelobo) - Idea & Initial work
-
-See also the list of [contributors](https://github.com/kylelobo/The-Documentation-Compendium/contributors) who participated in this project.
-
-## 🎉 Acknowledgements <a name = "acknowledgement"></a>
-
-- Hat tip to anyone whose code was used
-- Inspiration
-- References
+_____
+# Usage <a name="usage"></a>

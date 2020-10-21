@@ -1,9 +1,11 @@
 const Snoowrap = require('../config/snoo.config');
 const MentionBot = require('../service/MentionBot');
 const SubMonitorBot = require('../service/SubMonitorBot');
+const MultiSubMonitorBot = require('../service/MultiSubMonitorBot');
 const CommandBot = require('../service/CommandBot');
 const WikiEditor = require('../service/WikiEditor');
 const PriorityQueue = require('../util/PriorityQueue');
+const Command = require('../util/Command');
 /*
     [Snoolicious RTS] - Snoolicious Reddit Tool Suite
     
@@ -35,16 +37,13 @@ module.exports = class Reddit {
         /* [MentionBot Service] */
         this.mentions = new MentionBot(this.requester, process.env.STARTUP_LIMIT, process.env.MENTIONS_LIMIT);
         /* [SubMonitorBot Service] */
-        this.submissions = new SubMonitorBot(this.requester, process.env.MASTER_SUB, process.env.STARTUP_LIMIT, process.env.SUBMISSION_LIMIT);
+        this.submissions = new SubMonitorBot(this.requester);
+        /* [SubMonitorBot Service] */
+        this.multis = new MultiSubMonitorBot(this.requester);
         /* [CommandBot Service] */
         this.commands = new CommandBot(this.requester, process.env.THREAD_ID, process.env.STARTUP_LIMIT);
         /* [WikiEditor Service] */
         this.wikieditor = new WikiEditor(this.requester, process.env.MASTER_SUB);
-
-        /* [Check for first run of get functions] */
-        this.mentionsAssigned = false;
-        this.submissionsAssigned = false;
-        this.commandsAssigned = false;
 
         /* 
             [Tasks]
@@ -61,16 +60,9 @@ module.exports = class Reddit {
             - Returns the tasks queue
     */
     async getMentions(priority) {
-        let mentions; // First pass check
-        if (!this.mentionsAssigned) {
-            mentions = await this.mentions.assignFirst();
-            this.mentionsAssigned = true;
-        } else {
-            mentions = await this.mentions.checkAgain();
-        }
+        const mentions = await this.mentions.getMentions();
         // Dequeue all the mentions into the priority queue
         while (mentions && !mentions.isEmpty()) {
-
             this.tasks.enqueue([mentions.dequeue(), priority]);
         }
         return this.tasks;
@@ -83,15 +75,23 @@ module.exports = class Reddit {
             - Returns the tasks queue
     */
     async getSubmissions(priority) {
-        let submissions; // First pass check
-        if (!this.submissionsAssigned) {
-            submissions = await this.submissions.assignFirst();
-            this.submissionsAssigned = true;
-        } else {
-            submissions = await this.submissions.checkAgain();
-        }
+        const submissions = await this.submissions.getSubmissions();
         // Dequeue all the submissions into the priority queue
         while (submissions && !submissions.isEmpty()) {
+            this.tasks.enqueue([submissions.dequeue(), priority]);
+        }
+        return this.tasks;
+    }
+    /*
+        [Get Multis]
+            - Asks MultiSubMonitor Service to get submissions from all defined subreddits
+            - Dequeues the submissions queue into tasks queue
+            - Returns the tasks queue
+    */
+    async getMultis(priority) {
+        const multis = await this.multis.getSubmissions();
+        // Dequeue all the submissions into the priority queue
+        while (multis && !multis.isEmpty()) {
             this.tasks.enqueue([submissions.dequeue(), priority]);
         }
         return this.tasks;
@@ -104,18 +104,45 @@ module.exports = class Reddit {
             - Returns the tasks queue
     */
     async getCommands(priority) {
-        let commands; // First pass check
-        if (!this.commandsAssigned) {
-            commands = await this.commands.assignFirst();
-            this.commandsAssigned = true;
-        } else {
-            commands = await this.commands.checkAgain();
-        }
+        const commands = await this.commands.getCommands();
         // Dequeue all the commands into the priority queue
         while (commands && !commands.isEmpty()) {
             this.tasks.enqueue([commands.dequeue(), priority]);
         }
         return this.tasks;
+    }
+    /* [Get Tasks] */
+    getTasks() {
+        return this.tasks;
+    }
+    /* 
+        [Query Tasks]
+            - Dequeus all the tasks and handles commands based on your callback function
+            - Checks if item.body exists before handling command
+            - If item.body exists, runs handleSubmission instead.
+     */
+
+    async queryTasks(handleCommand, handleSubmission) {
+        while (!this.tasks.isEmpty()) {
+            const task = this.tasks.dequeue();
+            // If not a submission
+            if (task.item.body) {
+                const command = new Command().test(task.item.body);
+                if (command) { // If the item received was a command, return the command, the item, and 
+                    let cmd = {
+                        command: command,
+                        item: task.item,
+                        priority: task.priority,
+                        time: new Date().getTime()
+                    }
+                    await handleCommand(cmd);
+                }
+            } else if (task.item.title) {
+                task.time = new Date().getTime();
+                await handleSubmission(task);
+            }
+
+        }
     }
     /* [Wiki Editor] */
     getWikiEditor() {

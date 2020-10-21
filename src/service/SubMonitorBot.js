@@ -10,15 +10,44 @@ const Queue = require('../util/Queue');
     against the value of cutoff will determine if the item is to be filtered
 
 */
+let firstUTCAssigned = false;
 module.exports = class SubMonitor {
-    constructor(requester, sub, startupLimit, submissionLimit) {
+    constructor(requester) {
+        this.sub = process.env.MASTER_SUB;
         this.requester = requester;
-        this.startupLimit = startupLimit || 5;
-        console.log("startup limit set to: ", this.startupLimit);
-        this.submissionLimit = submissionLimit || 25;
+        this.startupLimit = process.env.STARTUP_LIMIT || 5;
+        this.submissionLimit = process.env.SUBMISSION_LIMIT || 25;
         this.submissions = new Queue();
         this.cutoff = new Number();
-        this.sub = sub;
+
+    }
+    /*
+        [Get Submissions]
+        - Loops over every sub in the ALL_SUBS map
+        - Checks to see if their utc has been asigned,
+        - Then assigns first, or checks again
+    */
+    async getSubmissions() {
+
+        console.log("SubMonitorBot -- getting submissions".magenta);
+
+        if (firstUTCAssigned === false) {
+            console.log('assigned was false!'.red);
+            console.log(`SubMonitorBot -- Assigning hte first utc!`.green);
+            firstUTCAssigned = true;
+            await this.assignFirst();
+
+        } else {
+            console.log("Value of assigned:", firstUTCAssigned);
+            console.log(`SubMonitorBot -- Assigning the NEXT utc for sub ${this.sub}`.yellow);
+            await this.checkAgain();
+        }
+
+
+
+
+
+
     }
     /* 
         [Assign First UTC]
@@ -27,6 +56,7 @@ module.exports = class SubMonitor {
             - Assigns this.cutoff to the most recent utc
         */
     async assignFirst() {
+        console.log("asigning first for this.sub: ", this.sub, "and this.startupLimit: ", this.startupLimit);
         // Check inbox
         const listing = await this.requester.getSubreddit(this.sub).getNew({
             limit: parseInt(this.startupLimit)

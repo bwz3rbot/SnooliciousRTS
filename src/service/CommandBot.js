@@ -11,6 +11,7 @@ const Queue = require('../util/Queue');
     against the value of cutoff will determine if the item is to be filtered
 
 */
+let firstUTCAssigned = false;
 module.exports = class CommandBot {
     constructor(requester, threadId, startupLimit) {
         this.requester = requester;
@@ -18,6 +19,20 @@ module.exports = class CommandBot {
         this.commands = new Queue();
         this.cutoff = new Number();
         this.threadId = threadId;
+    }
+
+    /*
+        [Get Commands]
+    */
+    async getCommands() {
+        if (!firstUTCAssigned) {
+            console.log("CommandBot -- Assigning hte first utc...".green);
+            firstUTCAssigned = true;
+            return this.assignFirst();
+        } else {
+            console.log("CommandBot -- the NEXT utc...".yellow);
+            return this.checkAgain();
+        }
     }
     /* 
         [Assign First UTC]

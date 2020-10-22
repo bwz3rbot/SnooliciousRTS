@@ -4,6 +4,7 @@ const SubMonitorBot = require('../service/SubMonitorBot');
 const MultiSubMonitorBot = require('../service/MultiSubMonitorBot');
 const CommandBot = require('../service/CommandBot');
 const WikiEditor = require('../service/WikiEditor');
+const NannyBot = require('../service/NannyBot');
 const PriorityQueue = require('../util/PriorityQueue');
 const Command = require('../util/Command');
 /*
@@ -44,6 +45,8 @@ module.exports = class Reddit {
         this.commands = new CommandBot(this.requester);
         /* [WikiEditor Service] */
         this.wikieditor = new WikiEditor(this.requester);
+        /* [UserFollower Service] */
+        this.nannybot = new NannyBot(this.requester);
 
         /* 
             [Tasks]
@@ -98,7 +101,6 @@ module.exports = class Reddit {
     /*
         [Get Commands]
             - Asks ThreadFollower Service to get commands
-            - The first time calling getCommands, will run assignFirst
             - Dequeues the command queue into tasks queue
             - Returns the tasks queue
     */
@@ -110,8 +112,18 @@ module.exports = class Reddit {
         }
         return this.tasks;
     }
-    /* [Get Tasks] */
-    getTasks() {
+    /*
+        [Get User]
+            - Asks UserFollower Service to get a users latest posts
+            - Dequeues the command queue into tasks queue
+            - Returns the tasks queue
+    */
+    async nannyUser(user,priority) {
+        const posts = await this.nannybot.getUserPosts(user);
+        // Dequeue all the commands into the priority queue
+        while (posts && !posts.isEmpty()) {
+            this.tasks.enqueue([posts.dequeue(), priority]);
+        }
         return this.tasks;
     }
     /* 

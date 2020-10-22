@@ -2,7 +2,7 @@ const dotenv = require('dotenv').config({
     path: "pw.env"
 });
 const Database = require('./data/sqlite.config');
-const db = new Database('saved');
+// const db = new Database('saved');
 const colors = require('colors');
 const Snoolicious = require('./lib/Snoolicious');
 const snoolicious = new Snoolicious();
@@ -66,31 +66,37 @@ async function handleCommand(task) {
                     time: <new Date().getTime()>
                 }
 */
+let count = 0;
 async function handleSubmission(task) {
+    console.log("RECEIVED TASK!");
+    console.log(`title:${task.item.title}`.green);
+   
     const id = `${task.item.parent_id}${task.item.id}${task.item.created_utc}`;
-    const checkedId = await db.checkID(id);
+    // console.log(`Received new submission! id:${task.item.id} title:${task.item.title} selftext:\n${task.item.selftext}`);
+    // const checkedId = await db.checkID(id);
     // Check if the item was saved first.
-    if (!checkedId) {
-        switch (task.item.subreddit.display_name) {
-            case 'Bwz3rBot':
-                console.log("Came from r/Bwz3rBot.".green);
-                break;
-            case 'IntWatch':
-                console.log("Came from r/IntWatch".red);
-                break;
-            case 'AnotherBotFarm':
-                console.log("Came from r/AnotherBotFarm");
-                break;
-            default:
-                console.log("Came from another sub!".yellow);
-                break;
-        }
-        console.log("saving");
-        await db.saveID(id);
+    if (true) {
+        // switch (task.item.subreddit.display_name) {
+        //     case 'Bwz3rBot':
+        //         console.log("Came from r/Bwz3rBot.".green);
+        //         break;
+        //     case 'IntWatch':
+        //         console.log("Came from r/IntWatch".red);
+        //         break;
+        //     case 'AnotherBotFarm':
+        //         console.log("Came from r/AnotherBotFarm");
+        //         break;
+        //     default:
+        //         console.log("Came from another sub!".yellow);
+        //         break;
+        // }
+        // console.log("saving");
+        // await db.saveID(id);
     } else {
         console.log("Item was already saved".red);
     }
     console.log("Size of the queue: ", snoolicious.tasks.size());
+    console.log("TOTAL TASKS COMPLETED: ", ++count);
 
 }
 
@@ -99,10 +105,11 @@ const INTERVAL = (process.env.INTERVAL * 1000);
 async function run() {
         console.log("Running Test!!!".green);
         await snoolicious.getCommands(1);
+        await snoolicious.nannyUser('bwz3r', 1);
         await snoolicious.getMentions(2);
         await snoolicious.getSubmissions(3);
         await snoolicious.getMultis(4);
-        console.log("Size of the queue: ", snoolicious.tasks.size());
+        console.log("APP CHECKING SIZE OF TASKS QUEUE: ".america, snoolicious.tasks.size());
         await snoolicious.queryTasks(handleCommand, handleSubmission);
         console.log(`Finished Quereying Tasks. Sleeping for ${INTERVAL/1000} seconds...`.rainbow);
         setTimeout(async () => {

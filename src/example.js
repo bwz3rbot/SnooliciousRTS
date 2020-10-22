@@ -48,6 +48,8 @@ async function handleCommand(task) {
     } else {
         console.log("Item was already saved!".red);
     }
+    console.log("Size of the queue: ", snoolicious.tasks.size());
+
 }
 /*
     [Handle Submission]
@@ -88,6 +90,8 @@ async function handleSubmission(task) {
     } else {
         console.log("Item was already saved".red);
     }
+    console.log("Size of the queue: ", snoolicious.tasks.size());
+
 }
 
 /* [Snoolicious Run Cycle] */

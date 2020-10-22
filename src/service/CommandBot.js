@@ -13,12 +13,12 @@ const Queue = require('../util/Queue');
 */
 let firstUTCAssigned = false;
 module.exports = class CommandBot {
-    constructor(requester, threadId, startupLimit) {
+    constructor(requester) {
         this.requester = requester;
-        this.startupLimit = startupLimit | 5;
+        this.startupLimit = process.env.STARTUP_LIMIT | 5;
         this.commands = new Queue();
         this.cutoff = new Number();
-        this.threadId = threadId;
+        this.threadId = process.env.THREAD_ID;
     }
 
     /*

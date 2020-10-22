@@ -35,15 +35,15 @@ module.exports = class Reddit {
         /* [Services] */
 
         /* [MentionBot Service] */
-        this.mentions = new MentionBot(this.requester, process.env.STARTUP_LIMIT, process.env.MENTIONS_LIMIT);
+        this.mentions = new MentionBot(this.requester);
         /* [SubMonitorBot Service] */
         this.submissions = new SubMonitorBot(this.requester);
         /* [MultiSubMonitor Service] */
         this.multis = new MultiSubMonitorBot(this.requester);
         /* [CommandBot Service] */
-        this.commands = new CommandBot(this.requester, process.env.THREAD_ID, process.env.STARTUP_LIMIT);
+        this.commands = new CommandBot(this.requester);
         /* [WikiEditor Service] */
-        this.wikieditor = new WikiEditor(this.requester, process.env.MASTER_SUB);
+        this.wikieditor = new WikiEditor(this.requester);
 
         /* 
             [Tasks]

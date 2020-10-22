@@ -12,10 +12,10 @@ const Queue = require('../util/Queue');
 */
 let firstUTCAssigned = false;
 module.exports = class MentionBot {
-    constructor(requester, startupLimit, mentionsLimit) {
+    constructor(requester) {
         this.requester = requester;
-        this.startupLimit = startupLimit || 5;
-        this.mentionsLimit = mentionsLimit || 25;
+        this.startupLimit = process.env.STARTUP_LIMIT || 5;
+        this.mentionsLimit = process.env.MENTIONS_LIMIT || 25;
         this.mentions = new Queue();
         this.cutoff = new Number();
     }

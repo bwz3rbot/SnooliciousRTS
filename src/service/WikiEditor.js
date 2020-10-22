@@ -8,10 +8,10 @@ https://not-an-aardvark.github.io/snoowrap/WikiPage.html#toc0__anchor
 
 */
 module.exports = class WikiEditor {
-    constructor(requester, subreddit) {
+    constructor(requester) {
         this.md = md;
         this.requester = requester;
-        this.subreddit = subreddit;
+        this.subreddit = process.env.MASTER_SUB;
     }
     /* [Get Wiki Page] */
     async getPage(page) {

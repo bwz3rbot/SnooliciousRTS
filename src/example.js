@@ -37,7 +37,7 @@ async function handleCommand(task) {
         switch (task.command.directive) {
             case 'help':
                 console.log("Command was help!".green, task.command);
-                // await snoolicious.getRequester().getComment(task.item.id).reply("replying to the item!");
+                await snoolicious.getRequester().getComment(task.item.id).reply("sending help!");
                 break;
             default:
                 console.log("Command was not understood! the command: ".red, task.command);
@@ -72,7 +72,6 @@ async function handleSubmission(task) {
         switch (task.item.subreddit.display_name) {
             case 'Bwz3rBot':
                 console.log("Came from r/Bwz3rBot.".green);
-
                 break;
             case 'IntWatch':
                 console.log("Came from r/IntWatch".red);
@@ -95,9 +94,9 @@ async function handleSubmission(task) {
 const INTERVAL = (process.env.INTERVAL * 1000);
 async function run() {
         console.log("Running Test!!!".green);
-        // await snoolicious.getCommands(1);
-        // await snoolicious.getMentions(2);
-        // await snoolicious.getSubmissions(3);
+        await snoolicious.getCommands(1);
+        await snoolicious.getMentions(2);
+        await snoolicious.getSubmissions(3);
         await snoolicious.getMultis(4);
         console.log("Size of the queue: ", snoolicious.tasks.size());
         await snoolicious.queryTasks(handleCommand, handleSubmission);

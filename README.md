@@ -76,7 +76,7 @@ __STARTUP_LIMIT__ will cause the bot to check this many items on the first sweep
 __SUBMISSION_LIMIT__ Will limit the amount of tasks the __SubMonitorBot Service__ and __MultiSubMonitor Service__ will generate on each sweep after the first. On very active subs with many submissions per minute, this option may be set up to 100.\
 __MENTIONS_LIMIT__ limits the amount of tasks the __MentionBot Service__ will generate after the first pass.\
 __COMMAND_PREFIX__ A single character (preferably symbol) string that the bot will listen for commands with.\
-__INTERVAL__ The time (in minutes) which the bot should sleep between doing its job again.\
+__INTERVAL__ The time (in seconds) which the bot should sleep between doing its job again. Easily changed to minutes for production by simply multiplying the value by 60 before pushing out your code.\
 __THREAD_ID__ You will have to go into your subreddit and create a new thread. I suggest pinning it so that users can see it and easily use it. Once it is created you'll have to copy and paste the id from the url bar into this field. The __CommandBot Service__ works by latching onto this thread and setting suggested sort to new, then continously streaming in the latest requests and handling them in a queue. This function requires the bot to have permission set to `Posts` to not receive an error. The value may be changed at any time if you decide to start a new command thread.\
 See the below example of a url. The id will be used in the pw.envEXAMPLE file as a reference. Copy the id from the thread you create just like this one:
 ```
@@ -86,23 +86,23 @@ https://www.reddit.com/r/Bwz3rBot/comments/ja6v32/bot_command_thread/
 
 
 
-
-USER_AGENT=''\
-CLIENT_ID=''\
-CLIENT_SECRET=''\
-REDDIT_USER=''\
-REDDIT_PASS=''\
-MASTER_SUB='Bwz3rBot'\
-SUBREDDITS='Bwz3rBot, IntWatch, AnotherBotFarm'\
-DEBUG_CODE='false'\
-DEBUG_NETWORK='false'\
-STARTUP_LIMIT='15'\
-SUBMISSION_LIMIT='50'\
-MENTIONS_LIMIT='50'\
-COMMAND_PREFIX="!"\
-INTERVAL='5'\
-THREAD_ID='jejlbe'
-
+```javascript
+USER_AGENT="YOUR BOT'S USERNAME"
+CLIENT_ID="FROM PREFS/APPS"
+CLIENT_SECRET="FROM PREFS/APPS"
+REDDIT_USER="YOUR BOT'S USERNAME"
+REDDIT_PASS="YOUR BOT'S PASSWORD"
+MASTER_SUB="Bwz3rBot"
+SUBREDDITS="Bwz3rBot, IntWatch, AnotherBotFarm"
+DEBUG_CODE="false"
+DEBUG_NETWORK="false"
+STARTUP_LIMIT="15"
+SUBMISSION_LIMIT="50"
+MENTIONS_LIMIT="50"
+COMMAND_PREFIX="!"
+INTERVAL="5"
+THREAD_ID="ja6v32"
+```
 
 
     
@@ -120,9 +120,10 @@ _____
 const dotenv = require('dotenv').config({
     path: "pw.env"
 });
+const Database = require('./data/sqlite.config');
+const db = new Database('saved');
 const colors = require('colors');
 const Snoolicious = require('./lib/Snoolicious');
-console.log("Creating new Reddit Class.");
 const snoolicious = new Snoolicious();
 
 /* 
@@ -147,20 +148,24 @@ const snoolicious = new Snoolicious();
                 }
 */
 async function handleCommand(task) {
+    const id = `${task.item.parent_id}${task.item.id}${task.item.created_utc}`;
+    const checkedId = await db.checkID(id);
     // Check if the item was saved first.
-    if (!task.item.saved) {
-        console.log("New Command recieved: ".yellow, task.time);
-        console.log(task.command);
+    if (!checkedId) {
+        console.log("New Command recieved: ".yellow);
         switch (task.command.directive) {
             case 'help':
                 console.log("Command was help!".green, task.command);
-                await snoolicious.getRequester().getComment(task.item.id).reply("replying to the item!");
+                await snoolicious.getRequester().getComment(task.item.id).reply("sending help!");
                 break;
             default:
                 console.log("Command was not understood! the command: ".red, task.command);
         }
         // Save the item so snoolicious won't process it again.
-        // await snoolicious.getRequester().getComment(task.item.id).save();
+        console.log("saving");
+        await db.saveID(id);
+    } else {
+        console.log("Item was already saved!".red);
     }
 }
 /*
@@ -179,25 +184,28 @@ async function handleCommand(task) {
                 }
 */
 async function handleSubmission(task) {
-    console.log({
-        title: task.item.title,
-        selftext: task.item.selftext,
-        UTC: task.item.created_utc
-    });
-    switch (task.item.subreddit.display_name) {
-        case 'Bwz3rBot':
-            console.log("Came from r/Bwz3rBot.".green);
-
-            break;
-        case 'IntWatch':
-            console.log("Came from r/IntWatch".red);
-            break;
-        case 'AnotherBotFarm':
-            console.log("Came from r/AnotherBotFarm");
-            break;
-        default:
-            console.log("Came from another sub!".yellow);
-            break;
+    const id = `${task.item.parent_id}${task.item.id}${task.item.created_utc}`;
+    const checkedId = await db.checkID(id);
+    // Check if the item was saved first.
+    if (!checkedId) {
+        switch (task.item.subreddit.display_name) {
+            case 'Bwz3rBot':
+                console.log("Came from r/Bwz3rBot.".green);
+                break;
+            case 'IntWatch':
+                console.log("Came from r/IntWatch".red);
+                break;
+            case 'AnotherBotFarm':
+                console.log("Came from r/AnotherBotFarm");
+                break;
+            default:
+                console.log("Came from another sub!".yellow);
+                break;
+        }
+        console.log("saving");
+        await db.saveID(id);
+    } else {
+        console.log("Item was already saved".red);
     }
 }
 
@@ -212,12 +220,11 @@ async function run() {
         console.log("Size of the queue: ", snoolicious.tasks.size());
         await snoolicious.queryTasks(handleCommand, handleSubmission);
         console.log(`Finished Quereying Tasks. Sleeping for ${INTERVAL/1000} seconds...`.rainbow);
-        setTimeout(() => {
-            return run()
+        setTimeout(async () => {
+            await run()
         }, (INTERVAL));
     }
     (async () => {
         await run();
     })();
-
     ```

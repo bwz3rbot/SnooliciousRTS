@@ -18,7 +18,6 @@ module.exports = class MultiSubMonitor {
         this.startupLimit = process.env.STARTUP_LIMIT;
         this.submissionLimit = process.env.SUBMISSION_LIMIT;
         this.submissions = new Queue();
-
         // Split the string from the env file into a usable array
         this.SUBREDDITS = process.env.SUBREDDITS.split(',');
         this.ALL_SUBS = new Map();
@@ -37,7 +36,6 @@ module.exports = class MultiSubMonitor {
     */
     async getSubmissions() {
         console.log("MultiSubMonitor Getting Submissions!".green);
-
         for (const [subreddit, utc] of this.ALL_SUBS) {
             if (utc === false) {
                 console.log(`MultiSubMonitorBot -- Assigning the FIRST utc for sub: "${subreddit}"`.green);
@@ -47,7 +45,6 @@ module.exports = class MultiSubMonitor {
                 await this.checkAgain(subreddit, utc);
             }
         }
-
         return this.submissions;
     }
     /* 
@@ -64,16 +61,13 @@ module.exports = class MultiSubMonitor {
         // Reverse the array and enqueue the mentions
         let previousUTC = this.ALL_SUBS.get(subreddit);
         listing.slice().reverse().forEach(submission => {
+            this.submissions.enqueue(submission);
             if (submission.created_utc > previousUTC) {
-                this.ALL_SUBS.set(subreddit, submission.created_utc);
-                this.submissions.enqueue(submission);
+                previousUTC = submission.created_utc;
             }
         });
-
-        // const thisSubMostRecent = this.submissions.collection.filter(submission => submission.subreddit.display_name === subreddit).slice();
-        // const nextUTC = thisSubMostRecent[thisSubMostRecent.length - 1].created_utc;
-        // const latestSubmission = this.submissions.collection[this.submissions.size() - 1];
-
+        // Set the new cutoff utc to the corresponding subreddit
+        this.ALL_SUBS.set(subreddit, previousUTC);
         // Return the queue
         return this.submissions;
     }
@@ -90,22 +84,16 @@ module.exports = class MultiSubMonitor {
         });
         // Filter items with created_utc > than the cutoff
         const newSubmissions = listing.filter(submission => submission.created_utc > utc).slice();
-        // Reverse the array and enqueue the new mentions
+        // Reverse the array and enqueue the new mentions, decide on a new UTC
         if (newSubmissions.length > 0) {
             newSubmissions.slice().reverse().forEach(submission => {
+                this.submissions.enqueue(submission);
                 if (submission.created_utc > utc) {
-                    this.ALL_SUBS.set(subreddit, submission.created_utc);
-                    this.submissions.enqueue(submission);
+                    utc = submission.created_utc;
                 }
             });
             // Set the new cutoff utc to the corresponding subreddit
-            // const mostRecent = newSubmissions[newSubmissions.length - 1];
-
-            // Find the largest utc in the array related to the current sub
-            // const nextUTC = mostRecent.created_utc;
-
-            // Set the subreddit's UTC
-            // this.ALL_SUBS.set(subreddit, nextUTC);
+            this.ALL_SUBS.set(subreddit, utc);
             // Return the queue
             return this.submissions;
         }

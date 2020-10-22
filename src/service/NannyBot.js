@@ -14,8 +14,8 @@ let firstUTCAssigned = false;
 module.exports = class MentionBot {
     constructor(requester) {
         this.requester = requester;
-        this.startupLimit = process.env.STARTUP_LIMIT || 5;
-        this.submissionsLimit = process.env.USER_SUBMISSION_LIMIT || 5;
+        this.startupLimit = process.env.STARTUP_LIMIT;
+        this.submissionsLimit = process.env.USER_SUBMISSION_LIMIT;
         this.posts = new Queue();
         this.cutoff = new Number();
     }
@@ -46,9 +46,9 @@ module.exports = class MentionBot {
         });
         // Reverse the array and enqueue the mentions, set the new UTC
         listing.slice().reverse().forEach(post => {
+            this.posts.enqueue(post);
             if (post.created_utc > this.cutoff) {
                 this.cutoff = post.created_utc;
-                this.posts.enqueue(post);
             }
         });
         return this.posts;
@@ -70,9 +70,9 @@ module.exports = class MentionBot {
         // Reverse the array and enqueue the new mentions, set the new UTC
         if (newPosts.length > 0) {
             newPosts.slice().reverse().forEach(post => {
+                this.posts.enqueue(post);
                 if (post.created_utc > this.cutoff) {
                     this.cutoff = post.created_utc;
-                    this.posts.enqueue(post);
                 }
             });
             // Return the queue

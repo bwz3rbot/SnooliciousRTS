@@ -9,7 +9,6 @@ const Queue = require('../util/Queue');
     cutoff = the most recently received item's created_utc.
     When adding items to the array, checking the items created_utc
     against the value of cutoff will determine if the item is to be filtered
-
 */
 let firstUTCAssigned = false;
 module.exports = class CommandBot {
@@ -20,7 +19,6 @@ module.exports = class CommandBot {
         this.cutoff = new Number();
         this.threadId = process.env.THREAD_ID;
     }
-
     /*
         [Get Commands]
     */
@@ -56,9 +54,9 @@ module.exports = class CommandBot {
         const commands = thread.comments.slice(0, this.startupLimit);
         commands.slice().reverse().forEach(command => {
             if (i++ < this.startupLimit) {
+                this.commands.enqueue(command);
                 if (command.created_utc > this.cutoff) {
                     this.cutoff = command.created_utc;
-                    this.commands.enqueue(command);
                 }
             }
         });
@@ -75,15 +73,14 @@ module.exports = class CommandBot {
         // Check the thread
         const thread = await this.requester.getSubmission(process.env.THREAD_ID)
             .fetch();
-
         // Filter items with created_utc > than the cutoff
         const newCommands = thread.comments.filter(command => command.created_utc > this.cutoff).slice();
         // Reverse the array and enqueue the new mentions, set the new cutoff UTC
         if (newCommands.length > 0) {
             newCommands.slice().reverse().forEach(command => {
+                this.commands.enqueue(command);
                 if (command.created_utc > this.cutoff) {
                     this.cutoff = command.created_utc;
-                    this.commands.enqueue(command);
                 }
             });
             // Return the queue

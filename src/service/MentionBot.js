@@ -47,9 +47,9 @@ module.exports = class MentionBot {
         });
         // Reverse the array and enqueue the mentions, set the new cutoff UTC
         inbox.slice().reverse().forEach(mention => {
+            this.mentions.enqueue(mention);
             if (mention.created_utc > this.cutoff) {
                 this.cutoff = mention.created_utc;
-                this.mentions.enqueue(mention);
             }
         });
         // Return the queue
@@ -73,9 +73,9 @@ module.exports = class MentionBot {
         // Reverse the array and enqueue the new mentions, set the new cutoff UTC
         if (newMentions.length > 0) {
             newMentions.slice().reverse().forEach(mention => {
+                this.mentions.enqueue(mention);
                 if (mention.created_utc > this.cutoff) {
                     this.cutoff = mention.created_utc;
-                    this.mentions.enqueue(mention);
                 }
             });
             // Return the queue

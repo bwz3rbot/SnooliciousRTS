@@ -60,7 +60,6 @@ module.exports = class CommandBot {
             }
         });
         // Set the cutoff
-        console.log("Setting this.cutoff to be : ", this.commands.collection[this.commands.size() - 1].created_utc);
         this.cutoff = this.commands.collection[this.commands.size() - 1].created_utc;
         // Return the queue
         return this.commands;

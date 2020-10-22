@@ -24,7 +24,7 @@ module.exports = class MentionBot {
     */
     async getMentions() {
         if (!firstUTCAssigned) {
-            console.log("MentionBot --Assigning hte FIRST utc...".green);
+            console.log("MentionBot -- Assigning the FIRST utc...".green);
             firstUTCAssigned = true;
             return this.assignFirst();
         } else {

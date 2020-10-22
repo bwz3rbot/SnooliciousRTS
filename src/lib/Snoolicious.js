@@ -75,7 +75,6 @@ module.exports = class Reddit {
     */
     async getSubmissions(priority) {
         const submissions = await this.submissions.getSubmissions();
-
         // Dequeue all the submissions into the priority queue
         while (submissions && !submissions.isEmpty()) {
             this.tasks.enqueue([submissions.dequeue(), priority]);
@@ -121,13 +120,9 @@ module.exports = class Reddit {
             - Checks if item.body exists before handling command
             - If item.body exists, runs handleSubmission instead.
      */
-
     async queryTasks(handleCommand, handleSubmission) {
         const D = new Date().getTime();
-
-        const promises = [];
         while (!this.tasks.isEmpty()) {
-
             const task = this.tasks.dequeue();
             // If not a submission
             if (task.item.body) {
@@ -139,56 +134,17 @@ module.exports = class Reddit {
                         priority: task.priority,
                         time: D
                     }
-                    console.log("Calling back with handleCommand(task)".bgMagenta.white);
-
-                    promises.push(handleCommand(T));
-
+                    await handleCommand(T);
                 }
             } else if (task.item.title) { // Task was a submission
-                console.log("Calling back with handleSubmission".bgMagenta.black);
                 const T = {
                     item: task.item,
                     priority: task.priority,
                     time: D
                 }
-                promises.push(handleSubmission(T));
-
+                await handleSubmission(T);
             }
-
         }
-        await Promise.all(promises);
-
-        console.log("Resolved all promises".green);
-
-
-        // while (!this.tasks.isEmpty()) {
-        //     const task = this.tasks.dequeue();
-        //     // If not a submission
-        //     if (task.item.body) {
-        //         const command = new Command().test(task.item.body);
-        //         if (command) { // If the item received was a command, return the command, the item, and priority
-
-        //             const T = {
-        //                 command: command,
-        //                 item: task.item,
-        //                 priority: task.priority,
-        //                 time: D
-        //             }
-        //             console.log("Calling back with handleCommand(task)".bgMagenta.white);
-        //             await handleCommand(T);
-        //         }
-        //     } else if (task.item.title) { // Task was a submission
-
-        //         console.log("Calling back with handleSubmission".bgMagenta.black);
-        //         const T = {
-        //             item: task.item,
-        //             priority: task.priority,
-        //             time: D
-        //         }
-        //         await handleSubmission(T);
-        //     }
-
-        // }
     }
     /* [Wiki Editor] */
     getWikiEditor() {

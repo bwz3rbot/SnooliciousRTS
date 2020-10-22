@@ -39,8 +39,6 @@ module.exports = class MultiSubMonitor {
         console.log("MultiSubMonitor Getting Submissions!".green);
 
         for (const [subreddit, utc] of this.ALL_SUBS) {
-            console.log("got this sub:", subreddit);
-            console.log("and this utc: ", utc);
             if (utc === false) {
                 console.log(`MultiSubMonitorBot -- Assigning the FIRST utc for sub: "${subreddit}"`.green);
                 await this.assignFirst(subreddit);
@@ -65,7 +63,6 @@ module.exports = class MultiSubMonitor {
         });
         // Reverse the array and enqueue the mentions
         listing.slice().reverse().forEach(submission => {
-            console.log("enqueeuing this submission: ", submission.title, submission.created_utc);
             this.submissions.enqueue(submission);
         });
         // Set the cutoff
@@ -74,8 +71,6 @@ module.exports = class MultiSubMonitor {
         const nextUTC = thisSubMostRecent[thisSubMostRecent.length - 1].created_utc;
         // const latestSubmission = this.submissions.collection[this.submissions.size() - 1];
         this.ALL_SUBS.set(subreddit, nextUTC);
-        console.log("assigning the first utc...");
-        console.log(this.ALL_SUBS);
         // Return the queue
         return this.submissions;
     }
@@ -98,18 +93,13 @@ module.exports = class MultiSubMonitor {
                 this.submissions.enqueue(submission);
             });
             // Set the new cutoff utc to the corresponding subreddit
-            const mostRecent = newSubmissions[newSubmissions.length - 1];
-            const leastRecent = newSubmissions[0];
-            console.log("Got this most recent item: ", mostRecent.title, mostRecent.created_utc);
-            console.log("Got this least recent item: ", leastRecent.title, leastRecent.created_utc);
-
+            const mostRecent = newSubmissions[newSubmissions.length - 1];   
 
             // Find the largest utc in the array related to the current sub
             const nextUTC = mostRecent.created_utc;
 
             // Set the subreddit's UTC
             this.ALL_SUBS.set(subreddit, nextUTC);
-            console.log(this.ALL_SUBS);
             // Return the queue
             return this.submissions;
         }

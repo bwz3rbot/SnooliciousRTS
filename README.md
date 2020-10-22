@@ -71,9 +71,9 @@ const snoolicious = new Snoolicious();
 */
 async function handleCommand(task) {
     const id = `${task.item.parent_id}${task.item.id}${task.item.created_utc}`;
-    const checkedId = await db.checkID(id);
+    const isSaved = await snoolicious.requester.getComment(task.item).saved;
     // Check if the item was saved first.
-    if (!checkedId) {
+    if (!isSaved) {
         console.log("New Command recieved: ".yellow);
         switch (task.command.directive) {
             case 'help':
@@ -85,10 +85,12 @@ async function handleCommand(task) {
         }
         // Save the item so snoolicious won't process it again.
         console.log("saving");
-        await db.saveID(id);
+        await snoolicious.requester.getComment(task.item.id).save();
     } else {
         console.log("Item was already saved!".red);
     }
+    console.log("Size of the queue: ", snoolicious.tasks.size());
+
 }
 /*
     [Handle Submission]
@@ -105,11 +107,13 @@ async function handleCommand(task) {
                     time: <new Date().getTime()>
                 }
 */
+let count = 0;
 async function handleSubmission(task) {
-    const id = `${task.item.parent_id}${task.item.id}${task.item.created_utc}`;
-    const checkedId = await db.checkID(id);
-    // Check if the item was saved first.
-    if (!checkedId) {
+    console.log("RECEIVED TASK!");
+    console.log(`title:${task.item.title}`.green);
+    const saved = await snoolicious.requester.getSubmission(task.item.id).saved;
+    console.log("was already saved: ", saved);
+    if (!saved) {
         switch (task.item.subreddit.display_name) {
             case 'Bwz3rBot':
                 console.log("Came from r/Bwz3rBot.".green);
@@ -125,21 +129,25 @@ async function handleSubmission(task) {
                 break;
         }
         console.log("saving");
-        await db.saveID(id);
+        await snoolicious.requester.getSubmission(task.item.id).save();
     } else {
         console.log("Item was already saved".red);
     }
+    console.log("Size of the queue: ", snoolicious.tasks.size());
+    console.log("TOTAL TASKS COMPLETED: ", ++count);
+
 }
 
 /* [Snoolicious Run Cycle] */
 const INTERVAL = (process.env.INTERVAL * 1000);
 async function run() {
-        console.log("Running Test!!!".green);
+        console.log("Running Test!!!");
         await snoolicious.getCommands(1);
+        await snoolicious.nannyUser('bwz3r', 1);
         await snoolicious.getMentions(2);
         await snoolicious.getSubmissions(3);
         await snoolicious.getMultis(4);
-        console.log("Size of the queue: ", snoolicious.tasks.size());
+        console.log("APP CHECKING SIZE OF TASKS QUEUE: ".america, snoolicious.tasks.size());
         await snoolicious.queryTasks(handleCommand, handleSubmission);
         console.log(`Finished Quereying Tasks. Sleeping for ${INTERVAL/1000} seconds...`.rainbow);
         setTimeout(async () => {

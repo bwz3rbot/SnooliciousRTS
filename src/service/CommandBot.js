@@ -15,7 +15,7 @@ let firstUTCAssigned = false;
 module.exports = class CommandBot {
     constructor(requester) {
         this.requester = requester;
-        this.startupLimit = process.env.STARTUP_LIMIT | 5;
+        this.startupLimit = process.env.STARTUP_LIMIT;
         this.commands = new Queue();
         this.cutoff = new Number();
         this.threadId = process.env.THREAD_ID;
@@ -51,20 +51,20 @@ module.exports = class CommandBot {
             // Recurisvly run this function after the length of comments is no longer 0
             return this.assignFirst();
         }
-        // Reverse the array and enqueue the mentions
+        // Reverse the array and enqueue the mentions, set the new cutoff UTC
         let i = 0;
         const commands = thread.comments.slice(0, this.startupLimit);
         commands.slice().reverse().forEach(command => {
             if (i++ < this.startupLimit) {
-                this.commands.enqueue(command);
+                if (command.created_utc > this.cutoff) {
+                    this.cutoff = command.created_utc;
+                    this.commands.enqueue(command);
+                }
             }
         });
-        // Set the cutoff
-        this.cutoff = this.commands.collection[this.commands.size() - 1].created_utc;
         // Return the queue
         return this.commands;
     }
-
     /* 
         [Check Again]
             - Checks the subreddit/new
@@ -78,13 +78,14 @@ module.exports = class CommandBot {
 
         // Filter items with created_utc > than the cutoff
         const newCommands = thread.comments.filter(command => command.created_utc > this.cutoff).slice();
-        // Reverse the array and enqueue the new mentions
+        // Reverse the array and enqueue the new mentions, set the new cutoff UTC
         if (newCommands.length > 0) {
             newCommands.slice().reverse().forEach(command => {
-                this.commands.enqueue(command);
+                if (command.created_utc > this.cutoff) {
+                    this.cutoff = command.created_utc;
+                    this.commands.enqueue(command);
+                }
             });
-            // Set the new cutoff utc
-            this.cutoff = this.commands.collection[this.commands.size() - 1].created_utc;
             // Return the queue
             return this.commands;
         }

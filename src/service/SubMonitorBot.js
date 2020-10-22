@@ -19,7 +19,6 @@ module.exports = class SubMonitor {
         this.submissionLimit = process.env.SUBMISSION_LIMIT;
         this.submissions = new Queue();
         this.cutoff = new Number();
-
     }
     /*
         [Get Submissions]
@@ -49,12 +48,13 @@ module.exports = class SubMonitor {
         const listing = await this.requester.getSubreddit(this.sub).getNew({
             limit: parseInt(this.startupLimit)
         });
-        // Reverse the array and enqueue the mentions
+        // Reverse the array and enqueue the mentions, set the new cutoff UTC
         listing.slice().reverse().forEach(submission => {
-            this.submissions.enqueue(submission);
+            if (submission.created_utc > this.cutoff) {
+                this.cutoff = submission.created_utc;
+                this.submissions.enqueue(submission);
+            }
         });
-        // Set the cutoff
-        this.cutoff = this.submissions.collection[this.submissions.size() - 1].created_utc;
         // Return the queue
         return this.submissions;
     }
@@ -72,13 +72,14 @@ module.exports = class SubMonitor {
         });
         // Filter items with created_utc > than the cutoff
         const newSubmissions = listing.filter(mention => mention.created_utc > this.cutoff).slice();
-        // Reverse the array and enqueue the new mentions
+        // Reverse the array and enqueue the new mentions, set the new cutoff UTC
         if (newSubmissions.length > 0) {
-            newSubmissions.slice().reverse().forEach(mention => {
-                this.submissions.enqueue(mention);
+            newSubmissions.slice().reverse().forEach(submission => {
+                if (submission.created_utc > this.cutoff) {
+                    this.cutoff = submission.created_utc;
+                    this.submissions.enqueue(submission);
+                }
             });
-            // Set the new cutoff utc
-            this.cutoff = this.submissions.collection[this.submissions.size() - 1].created_utc;
             // Return the queue
             return this.submissions;
         }

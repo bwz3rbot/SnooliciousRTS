@@ -45,12 +45,13 @@ module.exports = class MentionBot {
             filter: 'mentions',
             limit: parseInt(this.startupLimit)
         });
-        // Reverse the array and enqueue the mentions
+        // Reverse the array and enqueue the mentions, set the new cutoff UTC
         inbox.slice().reverse().forEach(mention => {
-            this.mentions.enqueue(mention);
+            if (mention.created_utc > this.cutoff) {
+                this.cutoff = mention.created_utc;
+                this.mentions.enqueue(mention);
+            }
         });
-        // Set the cutoff
-        this.cutoff = this.mentions.collection[this.mentions.size() - 1].created_utc;
         // Return the queue
         return this.mentions;
     }
@@ -69,13 +70,14 @@ module.exports = class MentionBot {
         });
         // Filter items with created_utc > than the cutoff
         const newMentions = inbox.filter(mention => mention.created_utc > this.cutoff).slice();
-        // Reverse the array and enqueue the new mentions
+        // Reverse the array and enqueue the new mentions, set the new cutoff UTC
         if (newMentions.length > 0) {
             newMentions.slice().reverse().forEach(mention => {
-                this.mentions.enqueue(mention);
+                if (mention.created_utc > this.cutoff) {
+                    this.cutoff = mention.created_utc;
+                    this.mentions.enqueue(mention);
+                }
             });
-            // Set the new cutoff utc
-            this.cutoff = this.mentions.collection[this.mentions.size() - 1].created_utc;
             // Return the queue
             return this.mentions;
         }

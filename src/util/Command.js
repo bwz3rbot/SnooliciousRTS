@@ -1,7 +1,3 @@
-const {
-    green
-} = require("colors");
-
 /* 
     [Command Validator]
         - Checks to see if the string passed starts with the prefix
@@ -56,12 +52,16 @@ module.exports = class Command {
 
     */
     test(string) {
-        string = this.stripUlink(string);
+        console.log(`testing this string: "${string}"`);
+
+        let placeholder = new String(string);
         try {
+            string = this.stripUlink(string);
             string = string.trim();
         } catch (err) {
-            return false;
+            string = placeholder;
         }
+        console.log("checking command...");
         const cmd = command(string);
         if (cmd) {
 

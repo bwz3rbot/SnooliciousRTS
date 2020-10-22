@@ -15,8 +15,8 @@ const Queue = require('../util/Queue');
 module.exports = class MultiSubMonitor {
     constructor(requester) {
         this.requester = requester;
-        this.startupLimit = process.env.STARTUP_LIMIT || 5;
-        this.submissionLimit = process.env.SUBMISSION_LIMIT || 25;
+        this.startupLimit = process.env.STARTUP_LIMIT;
+        this.submissionLimit = process.env.SUBMISSION_LIMIT;
         this.submissions = new Queue();
 
         // Split the string from the env file into a usable array
@@ -62,15 +62,18 @@ module.exports = class MultiSubMonitor {
             limit: parseInt(this.startupLimit)
         });
         // Reverse the array and enqueue the mentions
+        let previousUTC = this.ALL_SUBS.get(subreddit);
         listing.slice().reverse().forEach(submission => {
-            this.submissions.enqueue(submission);
+            if (submission.created_utc > previousUTC) {
+                this.ALL_SUBS.set(subreddit, submission.created_utc);
+                this.submissions.enqueue(submission);
+            }
         });
-        // Set the cutoff
 
-        const thisSubMostRecent = this.submissions.collection.filter(submission => submission.subreddit.display_name === subreddit).slice();
-        const nextUTC = thisSubMostRecent[thisSubMostRecent.length - 1].created_utc;
+        // const thisSubMostRecent = this.submissions.collection.filter(submission => submission.subreddit.display_name === subreddit).slice();
+        // const nextUTC = thisSubMostRecent[thisSubMostRecent.length - 1].created_utc;
         // const latestSubmission = this.submissions.collection[this.submissions.size() - 1];
-        this.ALL_SUBS.set(subreddit, nextUTC);
+
         // Return the queue
         return this.submissions;
     }
@@ -90,16 +93,19 @@ module.exports = class MultiSubMonitor {
         // Reverse the array and enqueue the new mentions
         if (newSubmissions.length > 0) {
             newSubmissions.slice().reverse().forEach(submission => {
-                this.submissions.enqueue(submission);
+                if (submission.created_utc > utc) {
+                    this.ALL_SUBS.set(subreddit, submission.created_utc);
+                    this.submissions.enqueue(submission);
+                }
             });
             // Set the new cutoff utc to the corresponding subreddit
-            const mostRecent = newSubmissions[newSubmissions.length - 1];   
+            // const mostRecent = newSubmissions[newSubmissions.length - 1];
 
             // Find the largest utc in the array related to the current sub
-            const nextUTC = mostRecent.created_utc;
+            // const nextUTC = mostRecent.created_utc;
 
             // Set the subreddit's UTC
-            this.ALL_SUBS.set(subreddit, nextUTC);
+            // this.ALL_SUBS.set(subreddit, nextUTC);
             // Return the queue
             return this.submissions;
         }

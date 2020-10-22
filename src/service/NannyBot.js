@@ -48,13 +48,11 @@ module.exports = class MentionBot {
         listing.slice().reverse().forEach(post => {
             if (post.created_utc > this.cutoff) {
                 this.cutoff = post.created_utc;
+                this.posts.enqueue(post);
             }
-            this.posts.enqueue(post);
         });
         return this.posts;
     }
-
-
     /* 
         [Check Again]
             - Checks the inbox
@@ -74,10 +72,9 @@ module.exports = class MentionBot {
             newPosts.slice().reverse().forEach(post => {
                 if (post.created_utc > this.cutoff) {
                     this.cutoff = post.created_utc;
+                    this.posts.enqueue(post);
                 }
-                this.posts.enqueue(post);
             });
-
             // Return the queue
             return this.posts;
         }

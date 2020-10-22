@@ -13,7 +13,7 @@
 
 ---
 
-<p align="center"> Snoolicious Reddit Tool Suite is a fully fledged bot framework complete with four seperate methods of getting commands to your bot, a command validator utility, a wiki editor service, pre-configured better-sqlite module for you to update per-project, <a href='https://github.com/web-temps/SnooMD'>SnooMD Reddit Flavour Markdown Editor</a>, and direct access to the incredible library <a href="https://github.com/not-an-aardvark/snoowrap">Snoowrap</a>.<br>
+<p align="center"> Snoolicious Reddit Tool Suite is a fully fledged bot framework complete with four seperate methods of getting commands to your bot, a command validator utility, a wiki editor service, pre-configured <a href="https://www.npmjs.com/package/better-sqlite3">better-sqlite3</a> module for you to update per-project, <a href='https://github.com/web-temps/SnooMD'>SnooMD Reddit Flavour Markdown Editor</a>, and direct access to the incredible library <a href="https://github.com/not-an-aardvark/snoowrap">Snoowrap</a>.<br>
 Snoolicious RTS has everything you need to get started building your bot to interact with the Reddit API.
     <br> 
 </p>

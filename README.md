@@ -199,6 +199,7 @@ __MASTER_SUB__ is the subreddit the SubMonitor Service will work on.\
 __SUBREDDITS__ are the subreddits MultiSubMonitor will work on.\
 __DEBUG_CODE__ and __DEBUG_NETWORK__ should be set to false unless any problems arise.\
 __STARTUP_LIMIT__ will cause the bot to check this many items on the first sweep. Setting this value higher will ensure that when stopping and restarting the bot, no requests are forgotten. This value may be set up to 100\
+__NANNY_USER__ the username of the redditor the NannyBot will follow.\
 __SUBMISSION_LIMIT__ Will limit the amount of tasks the __SubMonitorBot Service__ and __MultiSubMonitor Service__ will generate on each sweep after the first. On very active subs with many submissions per minute, this option may be set up to 100.\
 __USER_SUBMISSION_LIMIT__ Will be used by the NannyBot service.\
 __MENTIONS_LIMIT__ limits the amount of tasks the __MentionBot Service__ will generate after the first pass.\
@@ -224,6 +225,7 @@ SUBREDDITS="Bwz3rBot, IntWatch, AnotherBotFarm"
 DEBUG_CODE="false"
 DEBUG_NETWORK="false"
 STARTUP_LIMIT="15"
+NANNY_USER="bwz3r"
 SUBMISSION_LIMIT="50"
 USER_SUBMISSION_LIMIT='25'
 MENTIONS_LIMIT="50"

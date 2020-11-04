@@ -102,10 +102,10 @@ const INTERVAL = (process.env.INTERVAL * 1000);
 async function run() {
         console.log("Running Test!!!");
         await snoolicious.getCommands(1);
-        await snoolicious.nannyUser(process.env.NANNY_USER, 1);
-        await snoolicious.getMentions(2);
-        await snoolicious.getSubmissions(3);
-        await snoolicious.getMultis(4);
+        // await snoolicious.nannyUser(process.env.NANNY_USER, 1);
+        // await snoolicious.getMentions(2);
+        // await snoolicious.getSubmissions(3);
+        // await snoolicious.getMultis(4);
         console.log("APP CHECKING SIZE OF TASKS QUEUE: ".america, snoolicious.tasks.size());
         await snoolicious.queryTasks(handleCommand, handleSubmission);
         console.log(`Finished Quereying Tasks. Sleeping for ${INTERVAL/1000} seconds...`.rainbow);

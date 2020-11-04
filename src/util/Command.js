@@ -51,16 +51,20 @@ module.exports = class Command {
             - Or false if no prefix is found
 
     */
-    test(string) {
+    test(string, strip) {
         console.log(`testing this string: "${string}"`);
 
-        let placeholder = new String(string);
-        try {
-            string = this.stripUlink(string);
-            string = string.trim();
-        } catch (err) {
-            string = placeholder;
+        if (strip) {
+
+            let placeholder = new String(string);
+            try {
+                string = this.stripUlink(string);
+                string = string.trim();
+            } catch (err) {
+                string = placeholder;
+            }
         }
+
         console.log("checking command...");
         const cmd = command(string);
         if (cmd) {

@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node test/CommandBot.test.js"
+    "test": "node src/example.js"
   },
   "repository": {
     "type": "git",

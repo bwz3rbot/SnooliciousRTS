@@ -42,7 +42,7 @@ module.exports = class Reddit {
         /* [MultiSubMonitor Service] */
         this.multis = new MultiSubMonitorBot(this.requester);
         /* [CommandBot Service] */
-        this.commands = new CommandBot(this.requester ,process.env.THREAD_ID);
+        this.commands = new CommandBot(this.requester, process.env.THREAD_ID);
         /* [WikiEditor Service] */
         this.wikieditor = new WikiEditor(this.requester);
         /* [UserFollower Service] */
@@ -58,11 +58,30 @@ module.exports = class Reddit {
          */
         this.tasks = new PriorityQueue();
     }
-
+    /*
+        [Add Thread]
+            - Adds a new Command Bot with thread id to Snoolicious
+            - Returns the Command Bot
+    */
     addThread(priority, threadId) {
-        this.multithreads.set(priority, new CommandBot(this.requester, threadId));
+        const CmdBot = new CommandBot(this.requester, threadId);
+        this.multithreads.set(priority, CmdBot);
+        return CmdBot;
     }
+    /*
+        [Remove Thread]
+            - Deletes the specified Command Bot from Snoolicious
+    */
+    removeThread(priority) {
+        return this.multithreads.delete(priority);
 
+    }
+    /*
+          [Get Multi-Thread Commands]
+              - Gets the command thread by prio level
+              - Dequeues the tasks into the Snoolicious task queue
+              - Returns the task queue.
+      */
     async getMultithreadCommands(priority) {
         const commands = await this.multithreads.get(priority).getCommands();
         while (commands && !commands.isEmpty()) {

@@ -34,7 +34,7 @@ async function handleCommand(task) {
     console.log({
         cmd: task.command,
         fromUser: task.item.author.name,
-        prio:task.priority
+        prio: task.priority
     });
     const isSaved = await snoolicious.requester.getComment(task.item).saved;
     // Check if the item was saved first.
@@ -104,10 +104,10 @@ async function handleSubmission(task) {
 
 /* [Snoolicious Run Cycle] */
 const INTERVAL = (process.env.INTERVAL * 1000);
-console.log("adding thread.");
+
 snoolicious.addThread(1, 'jfjauu');
-console.log("adding thread.");
 snoolicious.addThread(2, 'jksi5q');
+
 async function run() {
         console.log("Running Test!!!");
         await snoolicious.getCommands(1);

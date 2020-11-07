@@ -30,6 +30,12 @@ const snoolicious = new Snoolicious();
 */
 async function handleCommand(task) {
     const id = `${task.item.parent_id}${task.item.id}${task.item.created_utc}`;
+    console.log("task received!");
+    console.log({
+        cmd: task.command,
+        fromUser: task.item.author.name,
+        prio:task.priority
+    });
     const isSaved = await snoolicious.requester.getComment(task.item).saved;
     // Check if the item was saved first.
     if (!isSaved) {
@@ -37,7 +43,6 @@ async function handleCommand(task) {
         switch (task.command.directive) {
             case 'help':
                 console.log("Command was help!".green, task.command);
-                await snoolicious.getRequester().getComment(task.item.id).reply("sending help!");
                 break;
             default:
                 console.log("Command was not understood! the command: ".red, task.command);
@@ -99,14 +104,21 @@ async function handleSubmission(task) {
 
 /* [Snoolicious Run Cycle] */
 const INTERVAL = (process.env.INTERVAL * 1000);
+console.log("adding thread.");
+snoolicious.addThread(1, 'jfjauu');
+console.log("adding thread.");
+snoolicious.addThread(2, 'jksi5q');
 async function run() {
         console.log("Running Test!!!");
         await snoolicious.getCommands(1);
-        // await snoolicious.nannyUser(process.env.NANNY_USER, 1);
-        // await snoolicious.getMentions(2);
-        // await snoolicious.getSubmissions(3);
-        // await snoolicious.getMultis(4);
+        await snoolicious.nannyUser(process.env.NANNY_USER, 1);
+        await snoolicious.getMentions(2);
+        await snoolicious.getSubmissions(3);
+        await snoolicious.getMultis(4);
+        await snoolicious.getMultithreadCommands(1);
+        await snoolicious.getMultithreadCommands(2);
         console.log("APP CHECKING SIZE OF TASKS QUEUE: ".america, snoolicious.tasks.size());
+        console.log("QUERYING/HANDLING ALL TASKS.");
         await snoolicious.queryTasks(handleCommand, handleSubmission);
         console.log(`Finished Quereying Tasks. Sleeping for ${INTERVAL/1000} seconds...`.rainbow);
         setTimeout(async () => {

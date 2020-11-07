@@ -42,11 +42,14 @@ module.exports = class Reddit {
         /* [MultiSubMonitor Service] */
         this.multis = new MultiSubMonitorBot(this.requester);
         /* [CommandBot Service] */
-        this.commands = new CommandBot(this.requester);
+        this.commands = new CommandBot(this.requester ,process.env.THREAD_ID);
         /* [WikiEditor Service] */
         this.wikieditor = new WikiEditor(this.requester);
         /* [UserFollower Service] */
         this.nannybot = new NannyBot(this.requester);
+
+        /* [Multi-Thread Command Service] */
+        this.multithreads = new Map();
 
         /* 
             [Tasks]
@@ -54,6 +57,18 @@ module.exports = class Reddit {
                 - All items are dequeued from their original bot service queues and into this priority queue
          */
         this.tasks = new PriorityQueue();
+    }
+
+    addThread(priority, threadId) {
+        this.multithreads.set(priority, new CommandBot(this.requester, threadId));
+    }
+
+    async getMultithreadCommands(priority) {
+        const commands = await this.multithreads.get(priority).getCommands();
+        while (commands && !commands.isEmpty()) {
+            this.tasks.enqueue([commands.dequeue(), priority]);
+        }
+        return this.tasks;
     }
     /*
         [Get Mentions]
@@ -118,7 +133,7 @@ module.exports = class Reddit {
             - Dequeues the command queue into tasks queue
             - Returns the tasks queue
     */
-    async nannyUser(user,priority) {
+    async nannyUser(user, priority) {
         const posts = await this.nannybot.getUserPosts(user);
         // Dequeue all the commands into the priority queue
         while (posts && !posts.isEmpty()) {

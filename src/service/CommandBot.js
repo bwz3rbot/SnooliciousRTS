@@ -12,12 +12,12 @@ const Queue = require('../util/Queue');
 */
 let firstUTCAssigned = false;
 module.exports = class CommandBot {
-    constructor(requester) {
+    constructor(requester, threadId) {
         this.requester = requester;
         this.startupLimit = process.env.STARTUP_LIMIT;
         this.commands = new Queue();
         this.cutoff = new Number();
-        this.threadId = process.env.THREAD_ID;
+        this.threadId = threadId;
     }
     /*
         [Get Commands]
@@ -53,6 +53,7 @@ module.exports = class CommandBot {
         let i = 0;
         const commands = thread.comments.slice(0, this.startupLimit);
         commands.slice().reverse().forEach(command => {
+
             if (i++ < this.startupLimit) {
                 this.commands.enqueue(command);
                 if (command.created_utc > this.cutoff) {
@@ -71,8 +72,7 @@ module.exports = class CommandBot {
      */
     async checkAgain() {
         // Check the thread
-        const thread = await this.requester.getSubmission(process.env.THREAD_ID)
-            .fetch();
+        const thread = await this.requester.getSubmission(this.threadId).fetch();
         // Filter items with created_utc > than the cutoff
         const newCommands = thread.comments.filter(command => command.created_utc > this.cutoff).slice();
         // Reverse the array and enqueue the new mentions, set the new cutoff UTC

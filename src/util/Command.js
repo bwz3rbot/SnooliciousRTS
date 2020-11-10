@@ -6,12 +6,12 @@ const buildArgs = function (args) {
     args.forEach(arg => {
         if (arg.includes(":")) {
             const a = arg.split(':');
+
             argarray.push([a[0], a[1]]);
         }
     });
     return argarray;
 }
-
 module.exports = class Command {
     constructor(prefix) {
         this.prefix = prefix;
@@ -36,12 +36,10 @@ module.exports = class Command {
                 args: []
             }
         }
-        let directive = str.slice(0, 1);
-        directive = directive[0].substring(1);
 
+        const directive = str.slice(0, 1)[0].slice(1);
         const a = str.slice(1, str.length);
         const args = buildArgs(a);
-
         return {
             directive,
             args

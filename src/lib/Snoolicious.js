@@ -33,6 +33,9 @@ module.exports = class Reddit {
         /* [Snoowrap API] */
         this.requester = new Snoowrap().requester;
 
+        /* [Command Parser] */
+        this.COMMANDS = new Command(process.env.COMMAND_PREFIX);
+
         /* [Services] */
 
         /* [MentionBot Service] */
@@ -173,7 +176,7 @@ module.exports = class Reddit {
             const task = this.tasks.dequeue();
             // If not a submission
             if (task.item.body) {
-                const command = new Command().test(task.item.body);
+                const command = this.COMMANDS.handle(task.item.body);
                 console.log("Testing command: ", command);
                 if (command) { // If the item received was a command, return the command, the item, and priority
                     const T = {

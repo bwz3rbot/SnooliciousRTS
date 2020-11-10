@@ -105,8 +105,7 @@ async function handleSubmission(task) {
 /* [Snoolicious Run Cycle] */
 const INTERVAL = (process.env.INTERVAL * 1000);
 
-snoolicious.addThread(1, 'jfjauu');
-snoolicious.addThread(2, 'jksi5q');
+snoolicious.addThread(1, process.env.THREAD_ID);
 
 async function run() {
         console.log("Running Test!!!");

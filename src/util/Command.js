@@ -1,83 +1,50 @@
-/* 
-    [Command Validator]
-        - Checks to see if the string passed starts with the prefix
-        - Returns a command with:
-            a. 
+/* Extract Directive */
 
-*/
-const pre = process.env.COMMAND_PREFIX || "!";
-const prefix = function (string) {
-    if (string.startsWith(pre)) {
-        return true;
-    }
+/* Build Args */
+const buildArgs = function (args) {
+    const argarray = [];
+    args.forEach(arg => {
+        if (arg.includes(":")) {
+            const a = arg.split(':');
+            argarray.push([a[0], a[1]]);
+        }
+    });
+    return argarray;
 }
-// Takes in text (from on 'message' listener)
-// Returns a command/arguments
-const buildCMD = function (string) {
-    const args = string.slice(pre.length).trim().split(/ +/g);
-    const directive = args.shift().toLowerCase();
-    const command = {
-        directive,
-        args
-    }
-    return command;
-}
-const command = function (string) {
-    if (prefix(string)) {
-        return buildCMD(string);
-    }
-}
-
 
 module.exports = class Command {
-    constructor() {
-        this.directive = new String();
-        this.args = new Array();
+    constructor(prefix) {
+        this.prefix = prefix;
     }
     /* 
-        [Strip Ulink]
-            - Strips the /u/username OR u/username if present
-            - returns the rest of the string
-         */
-    stripUlink(string = String) {
-        if (string.startsWith('/u/') || string.startsWith('u/')) {
-            return string.substring(string.indexOf(" ") + 1);
-        }
-    }
-    /* 
-        [Test]
-            - Tests a string for first char = prefix
-            - Returns a built command with array of args
-            - Or false if no prefix is found
+            [Test]
+                - Tests a string for first char = prefix
+                - Returns a built command with array of args
+                - Or false if no prefix is found
 
-    */
-    test(string, strip) {
-        console.log(`testing this string: "${string}"`);
-
-        if (strip) {
-
-            let placeholder = new String(string);
-            try {
-                string = this.stripUlink(string);
-                string = string.trim();
-            } catch (err) {
-                string = placeholder;
-            }
-        }
-
-        console.log("checking command...");
-        const cmd = command(string);
-        if (cmd) {
-
-            this.directive = cmd.directive;
-            this.args = cmd.args;
-            return {
-                directive: this.directive,
-                args: this.args
-            }
-        } else {
+        */
+    handle(string) {
+        string = string.trim();
+        const pref = string[0];
+        if (pref != this.prefix) {
             return false;
         }
+        const str = string.split(' ');
+        if (str.length === 1) { // If no args, return command
+            return {
+                directive: str[0],
+                args: []
+            }
+        }
+        let directive = str.slice(0, 1);
+        directive = directive[0].substring(1);
 
+        const a = str.slice(1, str.length);
+        const args = buildArgs(a);
+
+        return {
+            directive,
+            args
+        }
     }
 }

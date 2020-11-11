@@ -32,7 +32,7 @@ module.exports = class Command {
         const str = string.split(' ');
         if (str.length === 1) { // If no args, return command
             return {
-                directive: str[0],
+                directive: str.slice(0,1)[0].slice(1),
                 args: []
             }
         }

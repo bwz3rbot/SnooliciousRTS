@@ -176,7 +176,13 @@ module.exports = class Reddit {
             const task = this.tasks.dequeue();
             // If not a submission
             if (task.item.body) {
-                const command = this.COMMANDS.handle(task.item.body);
+                let command;
+                if (task.item.type != 'username_mention') {
+                    command = this.COMMANDS.handle(task.item.body);
+                } else {
+                    command = this.COMMANDS.stripULINK(task.item.body);
+                    command = this.COMMANDS.handle(command);
+                }
                 console.log("Testing command: ", command);
                 if (command) { // If the item received was a command, return the command, the item, and priority
                     const T = {

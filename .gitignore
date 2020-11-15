@@ -4,3 +4,4 @@
 /src/data/saved.db
 /src/data/saved.db-shm
 /src/data/saved.db-wal
+/src/test.js

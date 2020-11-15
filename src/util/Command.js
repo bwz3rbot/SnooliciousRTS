@@ -45,4 +45,13 @@ module.exports = class Command {
             args
         }
     }
+
+    stripULINK(string) {
+        if (string.startsWith('u/'+process.env.REDDIT_USER)) {
+            string = string.replace('u/'+process.env.REDDIT_USER, '');
+        } else if (string.startsWith('/u/'+process.env.REDDIT_USER)) {
+            string = string.replace('/u/'+process.env.REDDIT_USER, '');
+        }
+        return string;
+    }
 }

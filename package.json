@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node src/example.js"
+    "test": "nodemon src/test.js"
   },
   "repository": {
     "type": "git",

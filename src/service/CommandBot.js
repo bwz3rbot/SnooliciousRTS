@@ -24,11 +24,9 @@ module.exports = class CommandBot {
     */
     async getCommands() {
         if (!firstUTCAssigned) {
-            console.log("CommandBot -- Assigning the FIRST utc...".green);
             firstUTCAssigned = true;
             return this.assignFirst();
         } else {
-            console.log("CommandBot -- Assigning the NEXT utc...".yellow);
             return this.checkAgain();
         }
     }

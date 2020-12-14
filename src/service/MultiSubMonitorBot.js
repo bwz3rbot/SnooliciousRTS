@@ -35,13 +35,10 @@ module.exports = class MultiSubMonitor {
         - Then assigns first, or checks again
     */
     async getSubmissions() {
-        console.log("MultiSubMonitor Getting Submissions!".green);
         for (const [subreddit, utc] of this.ALL_SUBS) {
             if (utc === false) {
-                console.log(`MultiSubMonitorBot -- Assigning the FIRST utc for sub: "${subreddit}"`.green);
                 await this.assignFirst(subreddit);
             } else {
-                console.log(`MultiSubMonitorBot -- Assigning the NEXT utc for sub: "${subreddit}"`.yellow);
                 await this.checkAgain(subreddit, utc);
             }
         }

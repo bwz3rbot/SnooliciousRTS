@@ -6,7 +6,6 @@ const captureDirective =
 /* Build Args */
 const buildArgs =
     (args) => {
-        console.log('BUILDING ARGUMENTS!');
         const argarray = [];
         args.forEach(arg => {
             let a = arg;
@@ -29,7 +28,6 @@ class Command {
             "!";
     }
     handle(string) {
-        console.log(string);
         string = string.trim();
         const pref = string[0];
         if (pref != this.prefix) {
@@ -58,7 +56,6 @@ class Command {
         }
     }
     stripULINK(string) {
-        console.log('WAS UMENTION STRIPPING LINK');
         string.startsWith('u/' + process.env.REDDIT_USER) ?
             string = string.replace('u/' + process.env.REDDIT_USER, '') : false;
         string.startsWith('/u/' + process.env.REDDIT_USER) ?

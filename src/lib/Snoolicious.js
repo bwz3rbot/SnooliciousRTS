@@ -170,22 +170,15 @@ module.exports = class Reddit {
             - If item.body exists, runs handleSubmission instead.
      */
     async queryTasks(handleCommand, handleSubmission) {
-        console.log("Querying new tasks!".green);
         const D = new Date().getTime();
         while (!this.tasks.isEmpty()) {
             const task = this.tasks.dequeue();
             // If not a submission
             if (task.item.body) {
-                console.log('task.item.body:', task.item.body);
                 let command;
-                console.log('was it a username mention?');
-
                 task.item.type === 'username_mention' ?
                     command = this.COMMANDS.stripULINK(task.item.body) :
                     command = task.item.body;
-
-                console.log('handling command...');
-
                 command = this.COMMANDS.handle(command);
                 if (command) { // If the item received was a command, return the command, the item, and priority
                     const T = {

@@ -28,11 +28,9 @@ module.exports = class SubMonitor {
     */
     async getSubmissions() {
         if (firstUTCAssigned === false) {
-            console.log(`SubMonitorBot -- Assigning the FIRST utc!`.green);
             firstUTCAssigned = true;
             await this.assignFirst();
         } else {
-            console.log(`SubMonitorBot -- Assigning the NEXT utc!`.yellow);
             await this.checkAgain();
         }
         return this.submissions;

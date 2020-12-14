@@ -24,11 +24,9 @@ module.exports = class MentionBot {
     */
     async getUserPosts(user) {
         if (!firstUTCAssigned) {
-            console.log("NannyBot -- Assigning the FIRST utc...".green);
             firstUTCAssigned = true;
             return this.assignFirst(user);
         } else {
-            console.log("NannyBot -- Assigning the NEXT utc...".yellow);
             return this.checkAgain(user);
         }
     }

@@ -34,7 +34,7 @@ module.exports = class Reddit {
         this.requester = new Snoowrap().requester;
 
         /* [Command Parser] */
-        this.COMMANDS = new Command(process.env.COMMAND_PREFIX);
+        this.COMMANDS = Command;
 
         /* [Services] */
 
@@ -176,13 +176,17 @@ module.exports = class Reddit {
             const task = this.tasks.dequeue();
             // If not a submission
             if (task.item.body) {
+                console.log('task.item.body:', task.item.body);
                 let command;
-                if (task.item.type != 'username_mention') {
-                    command = this.COMMANDS.handle(task.item.body);
-                } else {
-                    command = this.COMMANDS.stripULINK(task.item.body);
-                    command = this.COMMANDS.handle(command);
-                }
+                console.log('was it a username mention?');
+
+                task.item.type === 'username_mention' ?
+                    command = this.COMMANDS.stripULINK(task.item.body) :
+                    command = task.item.body;
+
+                console.log('handling command...');
+
+                command = this.COMMANDS.handle(command);
                 console.log("Testing command: ", command);
                 if (command) { // If the item received was a command, return the command, the item, and priority
                     const T = {

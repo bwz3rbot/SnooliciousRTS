@@ -2,13 +2,12 @@
   "name": "snoolicious-rts",
   "version": "1.0.0",
   "description": "Wrapper for Snoowrap",
-  "main": "src/app.js",
+  "main": "src/test.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "nodemon src/test.js",
-    "doc":"jsdoc -c jsdoc.json"
+    "test": "nodemon src/app.js"
   },
   "repository": {
     "type": "git",
@@ -34,7 +33,5 @@
     "dotenv": "^8.2.0",
     "snoowrap": "^1.21.0"
   },
-  "devDependencies": {
-    "jsdoc": "^3.6.6"
-  }
+  "devDependencies": {}
 }

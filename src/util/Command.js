@@ -1,57 +1,71 @@
-/* Extract Directive */
+const captureDirective =
+    (str) => {
+        return str.slice(0, 1)[0].slice(1);
+    }
 
 /* Build Args */
-const buildArgs = function (args) {
-    const argarray = [];
-    args.forEach(arg => {
-        if (arg.includes(":")) {
-            const a = arg.split(':');
-
-            argarray.push([a[0], a[1]]);
-        }
-    });
-    return argarray;
-}
-module.exports = class Command {
-    constructor(prefix) {
-        this.prefix = prefix;
+const buildArgs =
+    (args) => {
+        console.log('BUILDING ARGUMENTS!');
+        const argarray = [];
+        args.forEach(arg => {
+            let a = arg;
+            if (arg.includes(":")) {
+                const a = arg.split(':');
+                argarray.push([a[0], a[1]]);
+            } else {
+                argarray.push([a]);
+            }
+        });
+        return argarray;
     }
-    /* 
-            [Test]
-                - Tests a string for first char = prefix
-                - Returns a built command with array of args
-                - Or false if no prefix is found
 
-        */
+
+class Command {
+    constructor(prefix) {
+        this.prefix =
+            process.env.COMMAND_PREFIX ||
+            prefix ||
+            "!";
+    }
     handle(string) {
+        console.log(string);
         string = string.trim();
         const pref = string[0];
         if (pref != this.prefix) {
-            return false;
+            return;
         }
-        const str = string.split(' ');
+
+        const str = string.split(/ /g);
+
         if (str.length === 1) { // If no args, return command
             return {
-                directive: str.slice(0,1)[0].slice(1),
+                // directive: str.slice(0, 1)[0].slice(1),
+                directive: captureDirective(str),
                 args: []
             }
         }
 
-        const directive = str.slice(0, 1)[0].slice(1);
+        const directive = captureDirective(str);
+
         const a = str.slice(1, str.length);
+
         const args = buildArgs(a);
+
         return {
             directive,
             args
         }
     }
-
     stripULINK(string) {
-        if (string.startsWith('u/'+process.env.REDDIT_USER)) {
-            string = string.replace('u/'+process.env.REDDIT_USER, '');
-        } else if (string.startsWith('/u/'+process.env.REDDIT_USER)) {
-            string = string.replace('/u/'+process.env.REDDIT_USER, '');
-        }
+        console.log('WAS UMENTION STRIPPING LINK');
+        string.startsWith('u/' + process.env.REDDIT_USER) ?
+            string = string.replace('u/' + process.env.REDDIT_USER, '') : false;
+        string.startsWith('/u/' + process.env.REDDIT_USER) ?
+            string = string.replace('/u/' + process.env.REDDIT_USER, '') : false;
         return string;
     }
+
 }
+
+module.exports = new Command();

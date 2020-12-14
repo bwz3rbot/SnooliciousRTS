@@ -1,7 +1,5 @@
-const dotenv = require('dotenv').config({
-    path: "pw.env"
-});
-const Database = require('./data/sqlite.config');
+require('dotenv').config();
+// const Database = require('./data/sqlite.config');
 // const db = new Database('saved');
 const colors = require('colors');
 const Snoolicious = require('./lib/Snoolicious');
@@ -29,7 +27,6 @@ const snoolicious = new Snoolicious();
                 }
 */
 async function handleCommand(task) {
-    const id = `${task.item.parent_id}${task.item.id}${task.item.created_utc}`;
     console.log("task received!");
     console.log({
         cmd: task.command,
@@ -107,23 +104,30 @@ const INTERVAL = (process.env.INTERVAL * 1000);
 
 snoolicious.addThread(1, process.env.THREAD_ID);
 
-async function run() {
+const run =
+    async () => {
         console.log("Running Test!!!");
         await snoolicious.getCommands(1);
-        await snoolicious.nannyUser(process.env.NANNY_USER, 1);
-        await snoolicious.getMentions(2);
-        await snoolicious.getSubmissions(3);
-        await snoolicious.getMultis(4);
-        await snoolicious.getMultithreadCommands(1);
-        await snoolicious.getMultithreadCommands(2);
+        // await snoolicious.nannyUser(process.env.NANNY_USER, 1);
+        // await snoolicious.getMentions(2);
+        // await snoolicious.getSubmissions(3);
+        // await snoolicious.getMultis(4);
+        // await snoolicious.getMultithreadCommands(1);
+        // await snoolicious.getMultithreadCommands(2);
+
         console.log("APP CHECKING SIZE OF TASKS QUEUE: ".america, snoolicious.tasks.size());
         console.log("QUERYING/HANDLING ALL TASKS.");
+
         await snoolicious.queryTasks(handleCommand, handleSubmission);
+
         console.log(`Finished Quereying Tasks. Sleeping for ${INTERVAL/1000} seconds...`.rainbow);
-        setTimeout(async () => {
-            await run()
-        }, (INTERVAL));
+
+        setTimeout(
+            async () => {
+                await run();
+            }, (INTERVAL));
     }
-    (async () => {
-        await run();
-    })();
+
+(async () => {
+    await run();
+})();

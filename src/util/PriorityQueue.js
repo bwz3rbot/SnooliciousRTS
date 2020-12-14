@@ -1,19 +1,3 @@
-function testPrioQueue() {
-    const pq = new PriorityQueue();
-    pq.enqueue(['Beau Carnes', 2]);
-    pq.enqueue(['Quincy Larson', 3]);
-    pq.enqueue(['Ewa Mitulska-Wójcik', 1]);
-    pq.enqueue(['Briana Swift', 2]);
-    console.log("Printing collection...");
-    pq.printCollection();
-    console.log("dequeueing...");
-    console.log(pq.dequeue());
-    console.log(pq.dequeue());
-    console.log(pq.dequeue());
-
-    console.log(pq.front());
-    pq.printCollection();
-}
 /* Priority Queue */
 module.exports = class PriorityQueue {
     constructor() {

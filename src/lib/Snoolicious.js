@@ -187,7 +187,6 @@ module.exports = class Reddit {
                 console.log('handling command...');
 
                 command = this.COMMANDS.handle(command);
-                console.log("Testing command: ", command);
                 if (command) { // If the item received was a command, return the command, the item, and priority
                     const T = {
                         command: command,
